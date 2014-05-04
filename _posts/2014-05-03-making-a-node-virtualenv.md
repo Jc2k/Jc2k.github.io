@@ -5,8 +5,6 @@ description: "I'm spoiled by python virtualenvs and want Node virtualenvs"
 category: 
 tags: ['node', 'virtualenv']
 ---
-{% include JB/setup %}
-
 These days npm ships with nodejs, which you can install on ubuntu with::
 
     sudo add-apt-repository ppa:chris-lea/node.js -y
