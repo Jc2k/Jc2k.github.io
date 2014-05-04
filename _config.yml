@@ -8,11 +8,11 @@ permalink:        pretty
 # Setup
 title:            unrouted.io
 tagline:          'Just sume stuff'
-description:      'A reserved <a href="http://jekyllrb.com" target="_blank">Jekyll</a> theme that places the utmost gravity on content with a hidden drawer. Made by <a href="https://twitter.com/mdo" target="_blank">@mdo</a>.'
-url:              http://lanyon.getpoole.com
+description:      'Stuff. Lots of computer stuff.'
+url:              http://unrouted.io
 
 author:
   name:           'John Carr'
-  url:            https://twitter.com/mdo
+  url:            https://twitter.com/Jc2k
 
 paginate:         5
