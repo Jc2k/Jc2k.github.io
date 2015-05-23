@@ -17,36 +17,36 @@ So how do you validate the target restore date? You can't restore to 30s ago - t
 With botocore the first part of this is easy:
 
 ```python
-    result = client.describe_db_instances(DBInstanceIdentifier=dbname)
-    db = result['DBInstances'][0]
-    if target > db['LatestRestorableTime']:
-        raise ValueError("The target time is too recent")
-    if target < db['InstanceCreateTime']:
-        raise ValueError('Cannot restore to before the db was created')
+result = client.describe_db_instances(DBInstanceIdentifier=dbname)
+db = result['DBInstances'][0]
+if target > db['LatestRestorableTime']:
+    raise ValueError("The target time is too recent")
+if target < db['InstanceCreateTime']:
+    raise ValueError('Cannot restore to before the db was created')
 ```
 
 Unfortunately there isn't an `EarliestRestorableTime`. As far as I can tell you can use the `SnapshotCreateTime` time of earliest backup:
 
 ```python
-    result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
-    snapshots = result.get('DBSnapshots', [])
-    snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
-    if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
-        raise ValueError('Can't restore before the first backup')
+result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
+snapshots = result.get('DBSnapshots', [])
+snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
+if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
+    raise ValueError('Can't restore before the first backup')
 ```
 
 But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the **previous** instance of `foo` hanging around. The only way to tell which snapshots belong to **this** instance is to filter on the `InstanceCreateTime`:
 
 ```python
-    result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
-    snapshots = result.get('DBSnapshots', [])
-    snapshots = filter(
-        lambda s: s['InstanceCreateTime'] == db['InstanceCreateTime'],
-        snapshots,
-    )
-    snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
-    if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
-        raise ValueError('Can't restore before the first backup')
+result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
+snapshots = result.get('DBSnapshots', [])
+snapshots = filter(
+    lambda s: s['InstanceCreateTime'] == db['InstanceCreateTime'],
+    snapshots,
+)
+snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
+if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
+    raise ValueError('Can't restore before the first backup')
 ```
 
 Grim.
