@@ -1,0 +1,45 @@
+---
+layout: post
+title: "Racyness in Amazon RDS backups"
+description: "Want to know what the earliest point in time restore you can do is? It's not straightforward."
+category: 
+tags: ['aws', 'rds', 'postgres', 'backup']
+---
+I recently wrote a restore script for an AWS RDS instance. With RDS you spin up a new instance from a backup (rather than restoring into the existing instance). So you can:
+
+ 1. Rename the original out of the way (`foo` -> `foo-old`) then restore the backup in it's place. This actually preservers the hostname.
+ 2. Restore the backup with a new name (`foo-2`). This means it will have a different hostname.
+
+I went with option (1) so that I always knew which database was 'active'. That meant doing as much validation up front as possible. You don't want to move the existing database and then a few minutes in to the script have it fail, finding out that you asked it to restore to a point in time last year!
+
+So how do you validate the target restore date? You can't restore to 30s ago - there is a lag of a few minutes. And obviously you can't restore before the database existed. But also you can't restore before the oldest backup.
+
+With botocore the first part of this is easy:
+
+    db = client.describe_db_instances(DBInstanceIdentifier=dbname)['DBInstances'][0]
+    if target > db['LatestRestorableTime']:
+        raise ValueError("You cannot restore to {}. The most recent restorable time is {}".format(
+            target,
+            db['LatestRestorableTime'],
+        ))
+    if target < db['InstanceCreateTime']:
+        raise ValueError('You cannot restore to {} because it is before the instance was created ({})'.format(
+            target,
+            db['InstanceCreateTime'],
+        ))
+
+Unfortunately there isn't an `EarliestRestorableTime`. As far as I can tell you can use the `SnapshotCreateTime` time of earliest backup:
+
+    snapshots = client.describe_db_snapshots(DBInstanceIdentifier=dbname).get('DBSnapshots', [])
+    snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
+    if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
+        raise ValueError('You cannot restore to {} because it is before the first available backup was created ({})'.format(
+            target,
+            snapshots[0]['SnapshotCreateTime'],
+        ))
+
+But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the *previous* instance of `foo` hanging around and listed as `available` and these confuse the validation.
+
+Yes, for a small superconfusing window the backups for 2 different database servers co-exist.
+
+The only way i've found to filter them out so far is to only consider snapshots that have an `InstanceCreateTime` that matches the current database.
