@@ -19,9 +19,7 @@ With botocore the first part of this is easy:
     result = client.describe_db_instances(DBInstanceIdentifier=dbname)
     db = result['DBInstances'][0]
     if target > db['LatestRestorableTime']:
-        raise ValueError("The latest restorable time is {}".format(
-            db['LatestRestorableTime'],
-        ))
+        raise ValueError("The target time is too recent")
     if target < db['InstanceCreateTime']:
         raise ValueError('Cannot restore to before the db was created')
 
@@ -31,7 +29,7 @@ Unfortunately there isn't an `EarliestRestorableTime`. As far as I can tell you 
     snapshots = result.get('DBSnapshots', [])
     snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
     if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
-        raise ValueError('Cannot restore before the first available backup')
+        raise ValueError('Can't restore before the first backup')
 
 But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the *previous* instance of `foo` hanging around and listed as `available` and these confuse the validation.
 
