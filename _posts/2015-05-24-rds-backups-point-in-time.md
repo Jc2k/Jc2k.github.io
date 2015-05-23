@@ -46,7 +46,7 @@ snapshots = filter(
 )
 snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
 if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
-    raise ValueError('Can't restore before the first backup')
+    raise ValueError("Can't restore before the first backup")
 ```
 
 Grim.
