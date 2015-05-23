@@ -2,7 +2,7 @@
 layout: post
 title: "Racyness in Amazon RDS backups"
 description: "Want to know what the earliest point in time restore you can do is? It's not straightforward."
-category: 
+category:
 tags: ['aws', 'rds', 'postgres', 'backup']
 ---
 I recently wrote a restore script for an AWS RDS instance. With RDS you spin up a new instance from a backup (rather than restoring into the existing instance). So you can:
