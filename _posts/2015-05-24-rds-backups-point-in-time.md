@@ -31,8 +31,16 @@ Unfortunately there isn't an `EarliestRestorableTime`. As far as I can tell you 
     if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
         raise ValueError('Can't restore before the first backup')
 
-But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the *previous* instance of `foo` hanging around and listed as `available` and these confuse the validation.
+But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the **previous** instance of `foo` hanging around. The only way to tell which snapshots belong to **this** instance is to filter on the `InstanceCreateTime`:
 
-Yes, for a small superconfusing window the backups for 2 different database servers co-exist.
+    result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
+    snapshots = result.get('DBSnapshots', [])
+    snapshots = filter(
+        lambda s: s['InstanceCreateTime'] == db['InstanceCreateTime'],
+        snapshots,
+    )
+    snapshots.sort(key=lambda snapshot: snapshot['SnapshotCreateTime'])
+    if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
+        raise ValueError('Can't restore before the first backup')
 
-The only way i've found to filter them out so far is to only consider snapshots that have an `InstanceCreateTime` that matches the current database.
+Grim.
