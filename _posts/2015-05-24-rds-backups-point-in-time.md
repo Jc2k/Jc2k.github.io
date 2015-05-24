@@ -7,8 +7,8 @@ tags: ['aws', 'rds', 'postgres', 'backup']
 ---
 I recently wrote a restore script for an AWS RDS instance. With RDS you spin up a new instance from a backup (rather than restoring into the existing instance). So you can:
 
- 1. Rename the original out of the way (`foo` -> `foo-old`) then restore the backup in it's place. This actually preservers the hostname.
- 2. Restore the backup with a new name (`foo-2`). This means it will have a different hostname.
+ 1. Rename the original out of the way (`foo` -> `foo-old`) then restore the backup in it's place. The final server will have the same hostname.
+ 2. Restore the backup with a new name (`foo-2`). This means it will have a different hostname and you'll need to deploy a settings change to your apps.
 
 I went with option (1) so that I always knew which database was 'active'. That meant doing as much validation up front as possible. You don't want to move the existing database and then a few minutes in to the script have it fail, finding out that you asked it to restore to a point in time last year!
 
