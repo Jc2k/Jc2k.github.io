@@ -35,7 +35,7 @@ if not snapshots or target < snapshots[0]['SnapshotCreateTime']:
     raise ValueError("Can't restore before the first backup")
 ```
 
-But that's still not enough. When you are testing your backup restore script you run it a lot. And what I found was that this frequently didn't stop me passing in an invalid date. What I noticed is that if you run it in quick succession there are still snapshots from the **previous** instance of `foo` hanging around. The only way to tell which snapshots belong to **this** instance is to filter on the `InstanceCreateTime`:
+But that's still not enough. When you are testing your backup restore script you run it a lot. And this validation frequently didn't stop me passing in an invalid date. It turned out that if you run it in quick succession there are still snapshots from the **previous** instance of `foo` hanging around. The only way to tell which snapshots belong to **this** instance is to filter on the `InstanceCreateTime`:
 
 ```python
 result = client.describe_db_snapshots(DBInstanceIdentifier=dbname)
