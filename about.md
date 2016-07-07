@@ -11,7 +11,7 @@ I do security, performance and reliability and deployment automation.
 
 I dabble in Django - mostly working to better integrate it into our standard AWS setup.
 
-I build DevOps tooling like touchdown.
+I build DevOps tooling like [touchdown](http://docs.yaybu.com/projects/touchdown/).
 
 I <3 noodles.
 
