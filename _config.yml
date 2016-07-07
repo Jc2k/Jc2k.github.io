@@ -13,6 +13,9 @@ url:              http://unrouted.io
 
 author:
   name:           'John Carr'
-  url:            https://twitter.com/Jc2k
+  url:            https://github.com/Jc2k
 
 paginate:         5
+
+gems:
+  - jemoji
