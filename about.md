@@ -13,7 +13,7 @@ I dabble in Django - mostly working to better integrate it into our standard AWS
 
 I build DevOps tooling like [touchdown](http://docs.yaybu.com/projects/touchdown/).
 
-I <3 noodles.
+I :heart: noodles.
 
 I'm on [GitHub](https://github.com/Jc2k) and [Twitter](https://twitter.com/Jc2k).
 
