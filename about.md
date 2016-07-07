@@ -3,7 +3,7 @@ layout: page
 title: About
 ---
 
-I'm the resident Systems Specialist at Isotoma.
+I'm the resident Systems Specialist at [Isotoma](https://www.isotoma.com/).
 
 I build high availability cloud applications for Amazon Web Services.
 
