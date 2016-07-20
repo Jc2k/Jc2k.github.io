@@ -7,9 +7,9 @@ I'm the resident Systems Specialist at [Isotoma](https://www.isotoma.com/).
 
 I build high availability cloud applications for Amazon Web Services.
 
-I do security, performance and reliability and deployment automation.
+I do security, performance, reliability and deployment automation.
 
-I dabble in Django - mostly working to better integrate it into our standard AWS setup.
+I dabble in Django - mostly working to better integrate it into Isotoma's standard AWS setup.
 
 I build DevOps tooling like [touchdown](http://docs.yaybu.com/projects/touchdown/).
 
