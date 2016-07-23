@@ -6,7 +6,7 @@ highlighter:      rouge
 permalink:        pretty
 
 # Setup
-title:            unrouted.io
+title:            unrouted
 tagline:          'Just some stuff'
 description:      'Stuff. Lots of computer stuff.'
 url:              http://unrouted.io
