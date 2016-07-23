@@ -11,6 +11,4 @@ I dabble in Django - mostly working to better integrate it into Isotoma's standa
 
 I <3 noodles.
 
-I'm on [GitHub](https://github.com/Jc2k) and [Twitter](https://twitter.com/Jc2k).
-
 My GPG key is at [keybase.io](https://keybase.io/jc2k), or [here](/john-carr.asc).
