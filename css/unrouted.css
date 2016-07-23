@@ -1,3 +1,8 @@
+/* https://github.com/poole/hyde/pull/90/files */
+.sidebar a {
+    padding: 5px 0;
+}
+
 /* Stop sidebar on mobile being so god damn massive */
 @media (min-width: 48em) {
   .sidebar {
