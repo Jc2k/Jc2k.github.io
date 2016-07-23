@@ -9,7 +9,7 @@
     text-align: left;
   }
 
-  .sidebar sidebar-nav-external {
+  .sidebar .sidebar-nav-external {
     display: none;
   }
 }
