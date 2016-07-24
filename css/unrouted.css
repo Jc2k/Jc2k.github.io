@@ -1,13 +1,20 @@
 /* https://github.com/poole/hyde/pull/90/files */
 .sidebar a {
-    padding: 5px 0;
+    padding: 5px 5px;
 }
+@media (min-width: 48em) {
+  .sidebar a {
+    padding: 0px;
+  }
+}
+
 
 /* poole makes img display: block, but we have some img.shield.io badges */
 a img {
   display: inline;
   margin: 0px;
 }
+
 
 /* Stop sidebar on mobile being so god damn massive */
 .sidebar {
