@@ -11,4 +11,4 @@ I dabble in Django - mostly working to better integrate it into Isotoma's standa
 
 I <3 noodles.
 
-My GPG key is at [keybase.io](https://keybase.io/jc2k), or [here](/john-carr.asc).
+My GPG key is at [keybase.io](https://keybase.io/jc2k), or [here](/gpg/key.asc).
