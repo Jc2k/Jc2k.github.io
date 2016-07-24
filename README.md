@@ -12,6 +12,15 @@ I do not directly collect any metrics about my visitors myself. E.g. there is no
 If you spot a typo or a formatting issue on this site you can submit a pull request to get it fixed!
 
 
+## Hacking on this blog
+
+If you want to tweak this blog and see what happens then install Docker Compose. You can spin up a jekyll instance with:
+
+    docker-compose up
+
+You can then see the blog at [http://127.0.0.1:4000](http://127.0.0.1:4000). It will live update as you make changes to the checkout.
+
+
 ## License/Copyrights
 
 https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png

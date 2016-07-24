@@ -18,4 +18,5 @@ author:
 paginate:         5
 
 gems:
+  - jekyll-paginate
   - jemoji
