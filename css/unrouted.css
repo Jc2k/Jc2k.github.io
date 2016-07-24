@@ -4,18 +4,30 @@
 }
 
 /* Stop sidebar on mobile being so god damn massive */
+.sidebar {
+  padding 0.5rem 1rem;
+}
 .sidebar-about p.lead {
   display: none;
 }
-.sidebar-nav-item {
+.sidebar .sidebar-nav-item {
   display: inline;
+}
+.sidebar-nav {
+  margin-bottom: 0px;
 }
 
 @media (min-width: 48em) {
+  .sidebar {
+    padding 2rem 1rem;
+  }
   .sidebar-about p.lead {
     display: block;
   }
   .sidebar .sidebar-nav-item {
     display: block;
+  }
+  .sidebar-nav {
+    margin-bottom: 1rem;
   }
 }
