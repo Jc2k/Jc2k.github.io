@@ -14,6 +14,12 @@
     {% endif %}
   </title>
 
+  {% if page.image %}
+    <meta property="og:image" content="{{ page.image }}">
+  {% else %}
+    <meta property="og:image" content="http://en.gravatar.com/userimage/709039/57dd7528994f064235a4e8c4191d4e05.png?size=200">
+  {% endif %}
+
   <!-- CSS -->
   <link rel="stylesheet" href="/css/poole.css">
   <link rel="stylesheet" href="/css/syntax.css">
