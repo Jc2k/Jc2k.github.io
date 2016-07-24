@@ -15,7 +15,7 @@
   .sidebar-about p.lead {
     display: block;
   }
-  .sidebar .sidebar-nav-external {
+  .sidebar .sidebar-nav-item {
     display: block;
   }
 }
