@@ -2,7 +2,7 @@ version: '2'
 services:
   jekyll:
     image: jekyll/jekyll:pages
-    command: jekyll serve --incremental -H 0.0.0.0
+    command: jekyll serve --drafts --watch -H 0.0.0.0
     volumes:
       - .:/srv/jekyll
     ports:
