@@ -3,6 +3,11 @@
     padding: 5px 0;
 }
 
+/* poole makes img display: block, but we have some img.shield.io badges */
+a img {
+  display: inline;
+}
+
 /* Stop sidebar on mobile being so god damn massive */
 .sidebar {
   padding 0.5rem 1rem;
