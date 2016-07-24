@@ -1,6 +1,6 @@
 # unrouted.io
 
-This is [my](https://twitter.com/Jc2k] GitHub Pages based [blog](https://unrouted.io).
+This is [my](https://twitter.com/Jc2k) GitHub Pages based [blog](https://unrouted.io).
 
 I use free CloudFlare SSL enpoints for improved integrity and for your privacy.
 
@@ -23,8 +23,7 @@ You can then see the blog at [http://127.0.0.1:4000](http://127.0.0.1:4000). It 
 
 ## License/Copyrights
 
-https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png
-http://creativecommons.org/licenses/by-nc-sa/4.0/
+[![by-nc-sa](https://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png)](http://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 This blog is by John Carr and it is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/).
 
