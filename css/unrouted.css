@@ -6,6 +6,7 @@
 /* poole makes img display: block, but we have some img.shield.io badges */
 a img {
   display: inline;
+  margin: 0px;
 }
 
 /* Stop sidebar on mobile being so god damn massive */
