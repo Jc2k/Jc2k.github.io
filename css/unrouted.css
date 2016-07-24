@@ -4,11 +4,17 @@
 }
 
 /* Stop sidebar on mobile being so god damn massive */
+.sidebar-about p.lead {
+  display: none;
+}
 .sidebar-nav-item {
   display: inline;
 }
 
 @media (min-width: 48em) {
+  .sidebar-about p.lead {
+    display: block;
+  }
   .sidebar .sidebar-nav-external {
     display: block;
   }
