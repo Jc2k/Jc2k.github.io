@@ -10,7 +10,7 @@
 
 
 /* poole makes img display: block, but we have some img.shield.io badges */
-a img {
+img {
   display: inline;
   margin: 0px;
 }
