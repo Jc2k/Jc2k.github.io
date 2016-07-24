@@ -4,17 +4,12 @@
 }
 
 /* Stop sidebar on mobile being so god damn massive */
-@media (min-width: 48em) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 18rem;
-    text-align: left;
-  }
+.sidebar-nav-item {
+  display: inline;
+}
 
+@media (min-width: 48em) {
   .sidebar .sidebar-nav-external {
-    display: none;
+    display: block;
   }
 }
