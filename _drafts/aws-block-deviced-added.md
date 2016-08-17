@@ -50,6 +50,6 @@ exec /usr/bin/jsvc \
     -Djetty.port=8983
 ```
 
-I totally replace `/etc/init.d/jetty` with upstart configuration - having `/etc/init.d/jetty` and `/etc/init/jetty.conf` seems to cause `sudo start jetty` and `sudo stop jetty` to hang. Just start solr with `/etc/init.d/jetty start` and grap the right command line with `ps aux`. Stick in a `-nodetach` to stop in forking so it plays nice with upstarts process supervision. This also gives us a nice place to create `/data/solr` and ensure its writeable by the `jetty` user.
+I totally remove `/etc/init.d/jetty` and add a new upstart configuration - having `/etc/init.d/jetty` and `/etc/init/jetty.conf` seems to cause `sudo start jetty` and `sudo stop jetty` to hang. Just start solr with `/etc/init.d/jetty start` and grap the right command line with `ps aux`. Stick in a `-nodetach` to stop in forking so it plays nice with upstarts process supervision. This also gives us a nice place to create `/data/solr` and ensure its writeable by the `jetty` user.
 
 Don't forget to update `solr.xml` to point at this new location! :wink:
