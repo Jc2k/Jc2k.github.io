@@ -65,7 +65,7 @@ Save the changes (this will drop you back to the shell):
 
 Now to add a new uid:
 
-    $ gpg --edit-key 4FB676F4            
+    $ gpg --edit-key 4FB676F4
     pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
                          trust: ultimate      validity: ultimate
     sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
