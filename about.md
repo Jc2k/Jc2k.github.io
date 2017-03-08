@@ -3,11 +3,15 @@ layout: page
 title: About
 ---
 
-I'm the resident Systems Specialist at [Isotoma](https://www.isotoma.com/). I build high availability cloud applications for Amazon Web Services. I do security, performance and reliability and deployment automation.
+I'm currently working for a European public benefit organisation in the IT security sector.
+
+I've previously worked as a Systems Specialist at [Isotoma](https://www.isotoma.com/) where I built high availability cloud applications on Amazon Web Services.
+
+I do security, performance, reliability and deployment automation engineering.
 
 I build DevOps tooling like [touchdown](http://docs.yaybu.com/projects/touchdown/).
 
-I dabble in Django - mostly working to better integrate it into Isotoma's standard AWS setup.
+I dabble in Django, and grudgingly hit React with sticks until it does what I want.
 
 I :heart: noodles.
 
