@@ -66,7 +66,7 @@ while True:
 And in another terminal you can tail the logs with `journalctl`:
 
 ```
-$ sudo journalctl -u www@*.service
+$ sudo journalctl -f -u www@*.service
 Apr 26 02:43:51 ubuntu twistd[10441]: 2017-04-26 02:43:51-0700 [-] - - - [26/Apr/2017:09:43:51 +0000] "GET / HTTP/1.0" 200 2081 "-" "Python-urllib/1.17"
 Apr 26 02:43:52 ubuntu twistd[10441]: 2017-04-26 02:43:52-0700 [-] - - - [26/Apr/2017:09:43:52 +0000] "GET / HTTP/1.0" 200 2081 "-" "Python-urllib/1.17"
 Apr 26 02:43:53 ubuntu twistd[10444]: 2017-04-26 02:43:53-0700 [-] - - - [26/Apr/2017:09:43:53 +0000] "GET / HTTP/1.0" 200 2081 "-" "Python-urllib/1.17"
