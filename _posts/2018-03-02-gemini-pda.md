@@ -60,7 +60,7 @@ The initial setup was buggy. The biggest issue was just that Android really didn
 
 I had thought that Material UI was a way to make web apps feel like crappy phone applications (thats certainly what I use it for), but it turns out it makes native phone apps feel like crappy web apps too (that one is on Google).
 
-I'm used to a single home button (and now 0 buttons on the iPhone X) so the ever present trio of buttons on the left hand side is annoying. I hope they can go away and be replaced by physical buttons / gemini app bar buttons.
+I'm used to a single home button (and now 0 buttons on the iPhone X) so the ever present trio of buttons on the right hand side is annoying. I hope they can go away and be replaced by physical buttons / gemini app bar buttons.
 
 The Gemini launcher is a great compromise at delivering the physical launcher that we had on Psion devices.
 
