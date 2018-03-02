@@ -1,7 +1,9 @@
 ---
 layout: post
-title: Gemini: First thoughts
-tags: gemini
+title: "Gemini: First thoughts"
+description: "My Gemini came - but is it any good?"
+category:
+tags: ['gemini']
 ---
 
 I just got my hands on my Gemini yesterday. I have been looking forward to this campaign delivering for over a year (I was so excited I managed to be backer #5). It's a spiritual successor to the Psion devices I grew up with and that makes it a must have for me - even if my ultraportable Mac and iPhone have seemingly eroded any real need. So here are my first thoughts on the Pocket Computers Gemini.
