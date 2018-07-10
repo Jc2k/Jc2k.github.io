@@ -81,7 +81,7 @@ So a super simple firewall. Create a new `/etc/iptables.conf` that looks like th
 ```
 *filter
 :INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
+:FORWARD DROP [0:0]
 :OUTPUT ACCEPT [0:0]
 :FILTERS - [0:0]
 :DOCKER-USER - [0:0]
@@ -97,7 +97,7 @@ So a super simple firewall. Create a new `/etc/iptables.conf` that looks like th
 -A DOCKER-USER -i ens33 -j FILTERS
 
 -A FILTERS -m state --state ESTABLISHED,RELATED -j ACCEPT
--A FILTERS -m state --state NEW -s 1.2.3.4/32
+-A FILTERS -m state --state NEW -s 1.2.3.4/32 -j ACCEPT
 -A FILTERS -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
 -A FILTERS -m state --state NEW -m tcp -p tcp --dport 23 -j ACCEPT
 -A FILTERS -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
@@ -120,10 +120,10 @@ Whats going on here?
  * This firewall avoids touching areas Docker is likely to interfere with. You can restart Docker over and over again and it will not harm or hinder our rules in `INPUT`, `DOCKER-USER` or `FILTERS`.
 
  * We explicitly flush `INPUT`, `DOCKER-USER` and `FILTERS`. This means we don't end up smooshing 2 different versions of our iptables.conf together. Normally this is done implicitly by `iptables-restore`. But its that implicit flush that that clobbers the rules that Docker manages. So we will only ever load this config with `iptables-restore -n /etc/iptables.conf`. The `-n` flag turns off the implicit global flush and only does our manual explicit flush. **The Docker rules are preserved - no more restarting Docker when you change your firewall**.
- 
+
  * We have an explicit `FILTERS` chain. This is used by the `INPUT` chain. But Docker traffic actually goes via the `FORWARD` chain. And thats why `ufw` has always been problematic. This is where `DOCKER-USER` comes in. We just add a rule that passes any traffic from the external physical network interface to our `FILTERS` chain. This means that when I want to allow my home IP (in this example `1.2.3.4`) access to every port I update the FILTERS chain once. I don't have to add a rule in `INPUT` and a rule in `DOCKER-USER`. I don't have to think about which part of the firewall a rule will or won't work in. My `FILTERS` chain is **the** place to go.
- 
- 
+
+
 ## Starting the firewall at boot
 
 You can load this firewall at boot with systemd. Add a new unit - `/etc/system/system/iptables.service`:
@@ -145,6 +145,13 @@ And enable it:
 
 ```
 $ sudo systemctl enable --now iptables
+```
+
+If your version of `systemctl` doesn't support this you can do it the old way:
+
+```
+$ sudo systemctl enable iptables
+$ sudo systemctl start iptables
 ```
 
 The firewall is now active, and it didn't smoosh your docker managed iptables rules. You can reboot and the firewall will come up as it is right now.
