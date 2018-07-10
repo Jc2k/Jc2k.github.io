@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "On MAC Address Randomness"
+title: "Random MAC Addresses That Aren't"
 description: "Fighting to make link-local addresses work with plusb usbnet cables - when MACAddressPolicy=random isn't enough"
 category: kernel
 tags: ['kernel', 'systemd', 'usb', 'networking']
