@@ -5,7 +5,9 @@ date = 2018-07-10
 path = "/about"
 +++
 
-I'm Jc2k - 🌱-based coffee loving Dad. Cybersecurity expert by day, open source contributor by night.
+I'm Jc2k - 🌱-based coffee loving Dad from Yorkshire.
+
+I currently work for a nonprofit dedicated to making the internet a safer and more secure place for everyone.
 
 I'm a committer at [Home Assistant](https://www.home-assistant.io/), self-hosted home automation that puts local control and privacy first. I maintain a couple of integrations there:
 
@@ -15,6 +17,8 @@ I'm a committer at [Home Assistant](https://www.home-assistant.io/), self-hosted
 * [EAFM](https://www.home-assistant.io/integrations/eafm/) lets you know if your local river is about to flood.
 
 I'm a committer at [Music Assistant](https://music-assistant.io/) a music library manager for your offline and online music sources which can stream music to a bunch of supported players and be combined with Home Assistant.
+
+I used to contribute to [libcloud](www.libcloud.org), [buildbot](www.buildbot.net) and [GNOME](https://www.gnome.org).
 
 Connect with me:
 
