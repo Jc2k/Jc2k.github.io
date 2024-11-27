@@ -22,7 +22,7 @@ I used to contribute to [libcloud](www.libcloud.org), [buildbot](www.buildbot.ne
 
 Connect with me:
 
-- If you need to confirm it's me, i'm on [Keybase](https://keybase.io/jc2k).
+- If you need to confirm it's me, i'm on [Keybase](https://keybase.io/jc2k) and [Keyoxide](https://keyoxide.org/a2621f7e99649468fbe81555eb27ab014fb676f4).
 - 💬 I'm on Mastodon ([mas.to/@jc2k](https://mas.to/@jc2k)) and Bluesky ([jc2k.bsky.social](https://bsky.app/profile/jc2k.bsky.social)).
 - 👨‍💻 For public code, i mostly use Github ([Jc2k@GitHub](https://github.com/Jc2k)).
 - ☕ If i've helped you out with something and you want to buy me a coffee... [buymeacoffee.com/jc2k](https://buymeacoffee.com/jc2k)
