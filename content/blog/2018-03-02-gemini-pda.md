@@ -1,6 +1,7 @@
 +++
 title = "Gemini: First thoughts"
 description = "My Gemini came - but is it any good?"
+aliases = ["/2018/03/02/gemini-pda/"]
 
 [taxonomies]
 tags = ['gemini']

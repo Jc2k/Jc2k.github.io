@@ -1,6 +1,7 @@
 +++
 title = "Starting services on hotplug"
 description = "Using systemd and udev to automatically start and stop a systemd service"
+aliases = ["/systemd/2017/05/21/starting-services-on-hotplug/"]
 
 [taxonomies]
 categories = ["systemd"]

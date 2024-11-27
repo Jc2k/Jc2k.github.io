@@ -1,6 +1,7 @@
 +++
 title = "Docker meet firewall - finally an answer"
 description = "Integrating docker with your firewall has always been a pain. But those times are coming to an end!"
+aliases = ["/2017/08/15/docker-firewall/"]
 
 [taxonomies]
 tags = ['docker', 'linux', 'iptables', 'firewall', 'security']

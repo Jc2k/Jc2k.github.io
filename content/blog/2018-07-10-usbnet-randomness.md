@@ -1,6 +1,7 @@
 +++
 title = "Random MAC Addresses That Aren't"
 description = "2 network devices with random MAC addresses... getting the same MAC address?"
+aliases = ["/kernel/2018/07/10/random-mac-addresses-that-arent/"]
 
 [taxonomies]
 categories = ["kernel"]
