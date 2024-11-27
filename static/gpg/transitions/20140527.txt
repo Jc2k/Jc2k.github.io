@@ -1,0 +1,67 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1,SHA512
+
+OpenPGP Key Transition Statement for John Carr
+
+I have created a new OpenPGP key and will be transitioning away from
+my old key.  The old key has not been compromised and will continue to
+be valid for some time, but I prefer all future correspondence to be
+encrypted to the new key, and will be making signatures with the new
+key going forward.
+
+I would like this new key to be re-integrated into the web of trust.
+This message is signed by both keys to certify the transition.  My new
+and old keys are signed by each other.  If you have signed my old key,
+I would appreciate signatures on my new key as well, provided that
+your signing policy permits that without re-authenticating me.
+
+The old key, which I am transitioning away from, is:
+
+pub   1024D/0xD7714D55E6EEB4D9 2009-12-15 [revoked: 2015-07-30]
+      Key fingerprint = 43F5 ACB4 ED4D B845 3375  54C1 D771 4D55 E6EE B4D9
+
+The new key, to which I am transitioning, is:
+
+pub   8192R/0xEB27AB014FB676F4 2014-05-27
+      Key fingerprint = A262 1F7E 9964 9468 FBE8  1555 EB27 AB01 4FB6 76F4
+
+The entire key may be downloaded from: https://unrouted.io/gpg/key.txt
+
+To fetch the full new key from a public key server using GnuPG, run:
+
+  gpg --keyserver keys.gnupg.net --recv-key 0xEB27AB014FB676F4
+
+If you already know my old key, you can now verify that the new key is
+signed by the old one:
+
+  gpg --check-sigs 0xEB27AB014FB676F4
+
+If you are satisfied that you've got the right key, and the User IDs
+match what you expect, I would appreciate it if you would sign my key:
+
+  gpg --sign-key 0xEB27AB014FB676F4
+
+You can upload your signatures to a public keyserver directly:
+
+  gpg --keyserver keys.gnupg.net --send-key 0xEB27AB014FB676F4
+
+If you'd like any further verification or have any questions about the
+transition please contact me directly.
+
+To verify the integrity of this statement:
+
+  wget -q -O- https://unrouted.io/gpg/transitions/20140527.txt|gpg --verify
+
+- - - John
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAleVQUoACgkQ13FNVebutNnDLgCfX8Oxw5ePyKIpw4v17ieLYK+U
+d6oAn2VK5jMC051FhnSEfvRdPzWtIVRjiQEcBAEBCgAGBQJXlUFKAAoJED7t/TdM
+oNSeiTIIAL9z4Atgeq60ysCm1Cq1fNPHxnIrB2bZIEOowdbpUSpMbF5z8Om1Xpv8
+Cns5eG2yDd6ufH1+o5n/OO7pM222gQpLjeWyjwamA4/DL2GR8XlA11kxqpkfy9re
+OyxHL1ud6F8umCLFyahckZ/7XR2LA8BoqHU4TOOgAdfG7oFVpw/SHS925tB4aVEz
+P8e2gELxX5Wl9LF/jb8EyUtsyHtqyjUjr3Lr8sLHWqjl/FeN35/f5X0F36LP3//O
+1abuVg71dvpRlspigJTHh0P1926p5O0359h+XiVWoFNnDZYGzzUuO/MRxMlOeZpR
+Za8ecm112vIJEnBWckW08bgoKBufdR0=
+=sWrz
+-----END PGP SIGNATURE-----
