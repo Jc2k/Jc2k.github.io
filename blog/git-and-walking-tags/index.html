@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="I wanted to annotate a visualisation with when a db migration was added and if it was changed. This is what i did." />
+  
+  
+
+  <title>
+    
+    Finding when a file was added to Git and when it was last changed
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Finding when a file was added to Git and when it was last changed</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>1 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2016-07-26
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>I recently built a visualisation of all Django migrations in a project and the dependencies between them. I was most interested in recent migrations, and in particular if a migration had been changed after it had been deployed. So adding the tag a migration was introduced in (and the tag it was last modified in) seemed like a good idea.</p>
+<span id="continue-reading"></span>
+<p>My first attempt was to query each migration with <code>git log</code> with a diff filter to find out when it was added. Then I could use <code>git tag</code> to see which tags it was in:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ git log --format=&quot;format:%H&quot; --follow --diff-filter=A touchdown/core/adapters.py
+</span><span>184d8e88017726e695ee9cb22e428b667f6d22de
+</span><span>$ git tag --contains 184d8e88017726e695ee9cb22e428b667f6d22de
+</span><span>0.0.1
+</span><span>0.0.10
+</span><span>0.0.11
+</span><span>0.0.12
+</span><span>0.0.13
+</span><span>0.0.14
+</span><span>&lt;snip&gt;
+</span></code></pre>
+<p>This was slow. I was traversing the same log again and again 100's of times. So for version 2 I traverse the log in tag order just once.. What changed between 0.0.1 and 0.0.2? What changed between 0.0.2 and 0.0.3?. If it's changed and i've never seen it before then it must be a new file. The new version is much faster.</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#b48ead;">import </span><span>subprocess
+</span><span style="color:#b48ead;">from </span><span>distutils.version </span><span style="color:#b48ead;">import </span><span>StrictVersion
+</span><span>
+</span><span>
+</span><span style="color:#65737e;"># Finds the root commit of the repository
+</span><span>tags = [
+</span><span>    subprocess.</span><span style="color:#bf616a;">check_output</span><span>([
+</span><span>        &quot;</span><span style="color:#a3be8c;">git</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">rev-list</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">--max-parents=0</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">HEAD</span><span>&quot;
+</span><span>    ]).</span><span style="color:#bf616a;">strip</span><span>()
+</span><span>]
+</span><span style="color:#65737e;"># Every tag in order
+</span><span>tags.</span><span style="color:#bf616a;">extend</span><span>(
+</span><span>    </span><span style="color:#96b5b4;">sorted</span><span>(
+</span><span>        subprocess.</span><span style="color:#bf616a;">check_output</span><span>([&quot;</span><span style="color:#a3be8c;">git</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">tag</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">-l</span><span>&quot;]).</span><span style="color:#bf616a;">split</span><span>(),
+</span><span>        </span><span style="color:#bf616a;">key</span><span>=StrictVersion,
+</span><span>    ),
+</span><span>)
+</span><span>
+</span><span>added = {}
+</span><span>changed = {}
+</span><span>
+</span><span style="color:#b48ead;">for </span><span>left, right </span><span style="color:#b48ead;">in </span><span style="color:#96b5b4;">zip</span><span>(tags, tags[</span><span style="color:#d08770;">1</span><span>:]):
+</span><span>    files = </span><span style="color:#bf616a;">set</span><span>(subprocess.</span><span style="color:#bf616a;">check_output</span><span>([
+</span><span>        &quot;</span><span style="color:#a3be8c;">git</span><span>&quot;,
+</span><span>        &quot;</span><span style="color:#a3be8c;">show</span><span>&quot;,
+</span><span>        &quot;</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;">...</span><span style="color:#d08770;">{}</span><span>&quot;.</span><span style="color:#bf616a;">format</span><span>(left, right),
+</span><span>        &quot;</span><span style="color:#a3be8c;">--no-commit-id</span><span>&quot;,
+</span><span>        &quot;</span><span style="color:#a3be8c;">-r</span><span>&quot;,
+</span><span>        &quot;</span><span style="color:#a3be8c;">--name-only</span><span>&quot;,
+</span><span>        &quot;</span><span style="color:#a3be8c;">--format=format:</span><span>&quot;,
+</span><span>    ]).</span><span style="color:#bf616a;">strip</span><span>().</span><span style="color:#bf616a;">split</span><span>())
+</span><span>
+</span><span>    </span><span style="color:#b48ead;">for </span><span>file </span><span style="color:#b48ead;">in </span><span>files:
+</span><span>        </span><span style="color:#b48ead;">if </span><span>file not in added:
+</span><span>            added[file] = right
+</span><span>        changed[file] = right
+</span><span>
+</span><span>
+</span><span style="color:#b48ead;">for </span><span>file, version </span><span style="color:#b48ead;">in </span><span>added.</span><span style="color:#bf616a;">items</span><span>():
+</span><span>    </span><span style="color:#b48ead;">print </span><span>file, version, changed[file]
+</span></code></pre>
+<p>One additional changed I could make is to remove files from <code>added</code> and <code>changed</code> if they aren't in <code>git ls-files {tag}</code>.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/git/">git</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/python/">python</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/git/">git</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/tag/">tag</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/history/">history</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/walk/">walk</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

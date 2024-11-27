@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="When a clock is out of sync things randomly start to break (especially crypto), so detecting drift early is super important" />
+  
+  
+
+  <title>
+    
+    Monitoring NTP with CloudWatch
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Monitoring NTP with CloudWatch</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2015-01-03
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>I've seen celery drop tasks on the floor because the queuers clock is to far ahead of the workers. I've seen boto fail to update Route53 because a clock was wrong. Time is super important. Here is a little script to look at the output of <code>ntpq -pn</code> and try and explain whats going on.</p>
+<span id="continue-reading"></span>
+<p>The output of <code>ntpq -pn</code> is something like this:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>     remote           refid      st t when poll reach   delay   offset  jitter
+</span><span>==============================================================================
+</span><span>+128.4.2.6    132.249.16.1       2  u 131  256  373     9.89   16.28   23.25
+</span><span>*128.4.1.20   .WWVB.             1  u 137  256  377   280.62   21.74   20.23
+</span><span>-128.8.2.88   128.8.10.1         2  u  49  128  376   294.14    5.94   17.47
+</span><span>+128.4.2.17   .WWVB.             1  u  173 256  377   279.95   20.56   16.40
+</span></code></pre>
+<p>The things to note are:</p>
+<ul>
+<li>Remotes marked with <code>*</code> are currently in use - there should only be one.</li>
+<li>Remotes marked with <code>+</code> are of high enough quality that they could replace the primary</li>
+<li><code>delay</code> is the round trip delay to the remote in ms.</li>
+<li><code>reach</code> is a left-shift register represented in octal. This would be 377 if no data was lost.</li>
+<li>We only really care about <code>delay</code>, <code>jitter</code> and <code>reach</code> for the primary peer.</li>
+</ul>
+<p>A nice summary of this can be produced with:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>from __future__ import division
+</span><span>import re
+</span><span>import subprocess
+</span><span>
+</span><span>lines = subprocess.check_output([&quot;ntpq&quot;, &quot;-pn&quot;]).splitlines()
+</span><span>if lines[0] == &quot;No association ID&#39;s returned&quot;:
+</span><span>    raise SystemExit(&quot;No timeservers available&quot;)
+</span><span>
+</span><span>peers = lines[2:]
+</span><span>overall_health = 0
+</span><span>candidates = 0
+</span><span>for line in peers:
+</span><span>    tmp = re.split(&quot; +&quot;, line.decode(&quot;utf-8&quot;).strip())
+</span><span>
+</span><span>    reachability = (bin(int(tmp[6], 8))[2:].count(&quot;1&quot;) / 8.0) * 100
+</span><span>    overall_health += reachability * (1 / len(peers))
+</span><span>
+</span><span>    if tmp[0].startswith(&quot;*&quot;):
+</span><span>        print(&quot;NTP/Delay={}&quot;.format(tmp[7]))
+</span><span>        print(&quot;NTP/Offset={}&quot;.format(tmp[8]))
+</span><span>        print(&quot;NTP/Jitter={}&quot;.format(tmp[9]))
+</span><span>        print(&quot;NTP/PrimaryHealth={}&quot;.format(reachability))
+</span><span>
+</span><span>    if tmp[0][0] in (&quot;+&quot;, &quot;*&quot;):
+</span><span>        candidates += 1
+</span><span>
+</span><span>print(&quot;NTP/OverallHealth={}&quot;.format(overall_health))
+</span><span>print(&quot;NTP/CandidateCount={}&quot;.format(candidates))
+</span></code></pre>
+<p>We probably want to alarm if:</p>
+<ul>
+<li>There are no candidate peers (probably with a long poll interval - it takes a while to warm up after boot).</li>
+<li>The reachibility of the primary peer is too low (again, long poll interval).</li>
+</ul>
+<p>This is really meant to be fed into a metrics system like <a href="http://www.influxdb.org">Influx</a> or <a href="https://aws.amazon.com/cloudwatch/">CloudWatch</a>, but thats left as an exercise for the reader.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/aws/">aws</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/amazon/">amazon</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/aws/">aws</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/ntp/">ntp</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/monitoring/">monitoring</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

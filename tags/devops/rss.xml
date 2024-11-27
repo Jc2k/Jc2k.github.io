@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - devops</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/devops/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sun, 12 Apr 2015 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Deleting an Amazon ELB properly</title>
+          <pubDate>Sun, 12 Apr 2015 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/elb-deletion/</link>
+          <guid>https://unrouted.uk/blog/elb-deletion/</guid>
+          <description xml:base="https://unrouted.uk/blog/elb-deletion/">&lt;p&gt;Recently I automated deletion of an Elastic Load Balancer and the Subnet it was in. Fairly straightforward stuff. One slight problem is that an ELB doesn&#x27;t have states. When you delete one it disappears immediately. But in the background it is still there. When you try to delete the subnet it was in you get a dependency error. After a couple of minutes it does work.&lt;&#x2F;p&gt;
+&lt;p&gt;The same is true if you try to delete a security group that the ELB was using.&lt;&#x2F;p&gt;
+&lt;p&gt;What&#x27;s going on?&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

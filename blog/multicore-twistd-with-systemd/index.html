@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="Run your twisted app on multiple cores without haproxy or iptables magic" />
+  
+  
+
+  <title>
+    
+    Multi-core twisted with systemd socket activation
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Multi-core twisted with systemd socket activation</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2017-04-26
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>With a stateless Twisted app you can scale by adding more instances. Unless you are explicitly offloading to subprocesses you will often have spare cores on the same box as your existing instance. But to exploit them you end up running haproxy or faking a <a href="https://www.webair.com/community/simple-stateful-load-balancer-with-iptables-and-nat/">load balancer with iptables</a>. Are there any other options?</p>
+<span id="continue-reading"></span>
+<p>With the <code>SO_REUSEPORT</code> socket flag multiple <a href="https://lwn.net/Articles/542629/">processes can listen on the same port</a>, but this isn't available from twisted (<a href="https://github.com/twisted/twisted/pull/759">yet</a>). But with systemd and socket activation we can use it today.</p>
+<p>As a proof of concept we'll make a 4 core HTTP static web service. In a fresh Ubuntu 16.04 VM install <code>python-twisted-web</code>.</p>
+<p>In <code>/etc/systemd/system/web@.socket</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>[Unit]
+</span><span>Description=Socket for worker %i
+</span><span>
+</span><span>[Socket]
+</span><span>ListenStream = 8080
+</span><span>ReusePort = yes
+</span><span>Service = www@%i.service
+</span><span>
+</span><span>[Install]
+</span><span>WantedBy = sockets.target
+</span></code></pre>
+<p>And in <code>/etc/systemd/system/web@.service</code></p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>[Unit]
+</span><span>Description=Worker %i
+</span><span>Requires=www@%i.socket
+</span><span>
+</span><span>[Service]
+</span><span>Type=simple
+</span><span>ExecStart=/usr/bin/twistd --nodaemon --logfile=- --pidfile= web --port systemd:domain=INET:index:0 --path /tmp
+</span><span>NonBlocking=yes
+</span><span>User=nobody
+</span><span>Group=nobody
+</span><span>Restart=always
+</span></code></pre>
+<p>Then to get 4 cores:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ systemctl enable --now www@0.socket
+</span><span>$ systemctl enable --now www@1.socket
+</span><span>$ systemctl enable --now www@2.socket
+</span><span>$ systemctl enable --now www@3.socket
+</span></code></pre>
+<p>Lets test it. In a python shell:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>import urllib
+</span><span>import time
+</span><span>
+</span><span>while True:
+</span><span>    urllib.urlopen(&#39;http://172.16.140.136:8080/&#39;).read()
+</span><span>    time.sleep(1)
+</span></code></pre>
+<p>And in another terminal you can tail the logs with <code>journalctl</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ sudo journalctl -f -u www@*.service
+</span><span>Apr 26 02:43:51 ubuntu twistd[10441]: 2017-04-26 02:43:51-0700 [-] - - - [26/Apr/2017:09:43:51 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:52 ubuntu twistd[10441]: 2017-04-26 02:43:52-0700 [-] - - - [26/Apr/2017:09:43:52 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:53 ubuntu twistd[10444]: 2017-04-26 02:43:53-0700 [-] - - - [26/Apr/2017:09:43:53 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:54 ubuntu twistd[10452]: 2017-04-26 02:43:54-0700 [-] - - - [26/Apr/2017:09:43:54 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:55 ubuntu twistd[10452]: 2017-04-26 02:43:55-0700 [-] - - - [26/Apr/2017:09:43:55 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:56 ubuntu twistd[10447]: 2017-04-26 02:43:56-0700 [-] - - - [26/Apr/2017:09:43:56 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span><span>Apr 26 02:43:57 ubuntu twistd[10450]: 2017-04-26 02:43:57-0700 [-] - - - [26/Apr/2017:09:43:57 +0000] &quot;GET / HTTP/1.0&quot; 200 2081 &quot;-&quot; &quot;Python-urllib/1.17&quot;
+</span></code></pre>
+<p>As you can see the <code>twisted[pid]</code> changes as different cores handle requests.</p>
+<p>If you deploy new code you can <code>systemctl restart www@*.service</code> to restart all cores.</p>
+<p><code>systemctl enable</code> will mean the 4 cores are available on next boot, too.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/systemd/">systemd</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/systemd/">systemd</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/twisted/">twisted</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/python/">python</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/socket/">socket</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

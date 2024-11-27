@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - udev</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/udev/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sun, 21 May 2017 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Starting services on hotplug</title>
+          <pubDate>Sun, 21 May 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/starting-services-on-hotplug/</link>
+          <guid>https://unrouted.uk/blog/starting-services-on-hotplug/</guid>
+          <description xml:base="https://unrouted.uk/blog/starting-services-on-hotplug/">&lt;p&gt;I want systemd to start a service when a USB device is plugged in and stop it when i remove it.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

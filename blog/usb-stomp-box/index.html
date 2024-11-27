@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="Home made USB device for controlling PC guitar software" />
+  
+  
+
+  <title>
+    
+    USB Stomp Box
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">USB Stomp Box</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2017-12-01
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>Christmas is right around the corner and choosing presents has been a nightmare this year. For my Dad I decided to make something. He's been using some Amp modelling software on the PC and one awkward bit is triggering the record function and then getting ready to play. It would be handy if he had a "guitar pedal" that could control the software.</p>
+<span id="continue-reading"></span>
+<p>Enter the <a href="https://shop.pimoroni.com/products/teensy-lc">teensy</a>. It's small and cheap and has super easy USB Keyboard emulation built in.</p>
+<p>As well as the teensy I needed:</p>
+<ul>
+<li><a href="http://www.ebay.co.uk/itm/DPDT-Momentary-On-On-Foot-Switch-Guitar-Effects-Pedal-Metal-Stomp-Box/262241729461">A sturdy looking stomp box switch</a></li>
+<li><a href="http://www.ebay.co.uk/itm/1591ATCL-Hammond-Clear-Polycarbonate-Enclosure-Box-100-x-50-x-25mm/262321566055">A sturdy case</a></li>
+</ul>
+<p>I picked up both from <a href="http://stores.ebay.co.uk/ledessential/">Switch Electronics</a>.</p>
+<p>In terms of code this was fairly easy:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>const int BUTTON_PIN = 23;
+</span><span>const int LED_PIN = 13;
+</span><span>const unsigned long DEBOUNCE_DELAY = 50;
+</span><span>
+</span><span>int button_state;
+</span><span>int last_button_state;
+</span><span>unsigned long last_debounce_time = 0;
+</span><span>
+</span><span>void setup() {
+</span><span>  pinMode(13, OUTPUT);
+</span><span>  pinMode(23, INPUT_PULLUP);
+</span><span>
+</span><span>  for (int i=0; i&lt;5; i++) {
+</span><span>    digitalWrite(LED_PIN, LOW);
+</span><span>    delay(80);
+</span><span>    digitalWrite(LED_PIN, HIGH);
+</span><span>    delay(80);
+</span><span>  }
+</span><span>
+</span><span>  button_state = last_button_state = digitalRead(BUTTON_PIN);
+</span><span>}
+</span><span>
+</span><span>void loop() {
+</span><span> int reading = digitalRead(BUTTON_PIN);
+</span><span>
+</span><span>  if (reading != last_button_state) {
+</span><span>    last_debounce_time = millis();
+</span><span>  }
+</span><span>
+</span><span>  if ((millis() - last_debounce_time) &gt; DEBOUNCE_DELAY &amp;&amp; reading != button_state) {
+</span><span>    button_state = reading;
+</span><span>
+</span><span>    if (button_state == HIGH) {
+</span><span>      Keyboard.println(&quot;MERRY XMAS FROM JOHN&quot;);
+</span><span>    }
+</span><span>  }
+</span><span>
+</span><span>  digitalWrite(LED_PIN, !button_state);
+</span><span>
+</span><span>  last_button_state = reading;
+</span><span>}
+</span></code></pre>
+<p>The LED flashes when you plug it in so you know its working. Some debouncing and state tracking code let me run the all important <code>Keyboard.println</code> when the button is pressed and then released. While the switch is held down the LED is on, again just for debugging.</p>
+<p>I don't have access to the software to figure out the keyboard shortcuts so for now it prints a festive message - we can update the code when he tries it out.</p>
+<p>If the software doesn't actually have any keyboard shortcuts at all (and you can't even press enter on a highlight widget) then I have a backup plan. He can definitely start the app with a mouse click, and the Teensy supports that too:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>// simple mouse clock
+</span><span>Mouse.click()
+</span><span>
+</span><span>// LEFT off, MIDDLE off, RIGHT on
+</span><span>Mouse.set_buttons(0, 0, 1);
+</span></code></pre>
+<p>If I had more time i'd look at the Bounce library and remove the state tracking code.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/electronics/">electronics</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/arduino/">arduino</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/teensy/">teensy</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/usb/">usb</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/electronics/">electronics</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

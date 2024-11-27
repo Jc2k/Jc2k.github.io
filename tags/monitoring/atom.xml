@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>unrouted.uk - monitoring</title>
+    <link rel="self" type="application/atom+xml" href="https://unrouted.uk/tags/monitoring/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://unrouted.uk"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2015-01-03T00:00:00+00:00</updated>
+    <id>https://unrouted.uk/tags/monitoring/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Monitoring NTP with CloudWatch</title>
+        <published>2015-01-03T00:00:00+00:00</published>
+        <updated>2015-01-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://unrouted.uk/blog/monitoring-ntp/"/>
+        <id>https://unrouted.uk/blog/monitoring-ntp/</id>
+        
+        <summary type="html">&lt;p&gt;I&#x27;ve seen celery drop tasks on the floor because the queuers clock is to far ahead of the workers. I&#x27;ve seen boto fail to update Route53 because a clock was wrong. Time is super important. Here is a little script to look at the output of &lt;code&gt;ntpq -pn&lt;&#x2F;code&gt; and try and explain whats going on.&lt;&#x2F;p&gt;
+</summary>
+        
+    </entry>
+</feed>

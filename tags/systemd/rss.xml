@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - systemd</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/systemd/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Tue, 10 Jul 2018 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Random MAC Addresses That Aren&#x27;t</title>
+          <pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/usbnet-randomness/</link>
+          <guid>https://unrouted.uk/blog/usbnet-randomness/</guid>
+          <description xml:base="https://unrouted.uk/blog/usbnet-randomness/">&lt;p&gt;What to do when both sides of a USB network data transfer cable have the same MAC address??&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Session management with systemd</title>
+          <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/session-management-with-systemd/</link>
+          <guid>https://unrouted.uk/blog/session-management-with-systemd/</guid>
+          <description xml:base="https://unrouted.uk/blog/session-management-with-systemd/">&lt;p&gt;How can I use systemd user services to handle policies (like what to start and stop when my internet connection comes and goes) on my tiny Linux palmtop?&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Starting services on hotplug</title>
+          <pubDate>Sun, 21 May 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/starting-services-on-hotplug/</link>
+          <guid>https://unrouted.uk/blog/starting-services-on-hotplug/</guid>
+          <description xml:base="https://unrouted.uk/blog/starting-services-on-hotplug/">&lt;p&gt;I want systemd to start a service when a USB device is plugged in and stop it when i remove it.&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Multi-core twisted with systemd socket activation</title>
+          <pubDate>Wed, 26 Apr 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/multicore-twistd-with-systemd/</link>
+          <guid>https://unrouted.uk/blog/multicore-twistd-with-systemd/</guid>
+          <description xml:base="https://unrouted.uk/blog/multicore-twistd-with-systemd/">&lt;p&gt;With a stateless Twisted app you can scale by adding more instances. Unless you are explicitly offloading to subprocesses you will often have spare cores on the same box as your existing instance. But to exploit them you end up running haproxy or faking a &lt;a href=&quot;https:&#x2F;&#x2F;www.webair.com&#x2F;community&#x2F;simple-stateful-load-balancer-with-iptables-and-nat&#x2F;&quot;&gt;load balancer with iptables&lt;&#x2F;a&gt;. Are there any other options?&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

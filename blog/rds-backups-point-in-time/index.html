@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="Want to know what the earliest point in time restore you can do is? It&#x27;s not straightforward." />
+  
+  
+
+  <title>
+    
+    Raciness in Amazon RDS backups
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Raciness in Amazon RDS backups</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2015-05-24
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>Want to know what the earliest point in time restore you can do is? It's not straightforward.</p>
+<span id="continue-reading"></span>
+<p>I recently wrote a restore script for an AWS RDS instance. With RDS you spin up a new instance from a backup (rather than restoring into the existing instance). So you can:</p>
+<ol>
+<li>Rename the original out of the way (<code>foo</code> -&gt; <code>foo-old</code>) then restore the backup in it's place. The final server will have the same hostname.</li>
+<li>Restore the backup with a new name (<code>foo-2</code>). This means it will have a different hostname and you'll need to deploy a settings change to your apps.</li>
+</ol>
+<p>I went with option (1) so that I always knew which database was 'active'. That meant doing as much validation up front as possible. You don't want to move the existing database and then a few minutes in to the script have it fail, finding out that you asked it to restore to a point in time last year!</p>
+<p>So how do you validate the target restore date? You can't restore to 30s ago - there is a lag of a few minutes. And obviously you can't restore before the database existed. But also you can't restore before the oldest backup.</p>
+<p>With botocore the first part of this is easy:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>result = client.</span><span style="color:#bf616a;">describe_db_instances</span><span>(</span><span style="color:#bf616a;">DBInstanceIdentifier</span><span>=dbname)
+</span><span>db = result[&#39;</span><span style="color:#a3be8c;">DBInstances</span><span>&#39;][</span><span style="color:#d08770;">0</span><span>]
+</span><span style="color:#b48ead;">if </span><span>target &gt; db[&#39;</span><span style="color:#a3be8c;">LatestRestorableTime</span><span>&#39;]:
+</span><span>    </span><span style="color:#b48ead;">raise </span><span style="color:#bf616a;">ValueError</span><span>(&quot;</span><span style="color:#a3be8c;">The target time is too recent</span><span>&quot;)
+</span><span style="color:#b48ead;">if </span><span>target &lt; db[&#39;</span><span style="color:#a3be8c;">InstanceCreateTime</span><span>&#39;]:
+</span><span>    </span><span style="color:#b48ead;">raise </span><span style="color:#bf616a;">ValueError</span><span>(&#39;</span><span style="color:#a3be8c;">Cannot restore to before the db was created</span><span>&#39;)
+</span></code></pre>
+<p>Unfortunately there isn't an <code>EarliestRestorableTime</code>. As far as I can tell you can use the <code>SnapshotCreateTime</code> time of earliest backup:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>result = client.</span><span style="color:#bf616a;">describe_db_snapshots</span><span>(</span><span style="color:#bf616a;">DBInstanceIdentifier</span><span>=dbname)
+</span><span>snapshots = result.</span><span style="color:#bf616a;">get</span><span>(&#39;</span><span style="color:#a3be8c;">DBSnapshots</span><span>&#39;, [])
+</span><span>snapshots.</span><span style="color:#bf616a;">sort</span><span>(</span><span style="color:#bf616a;">key</span><span>=</span><span style="color:#b48ead;">lambda </span><span style="color:#bf616a;">snapshot</span><span>: snapshot[&#39;</span><span style="color:#a3be8c;">SnapshotCreateTime</span><span>&#39;])
+</span><span style="color:#b48ead;">if </span><span>not snapshots or target &lt; snapshots[</span><span style="color:#d08770;">0</span><span>][&#39;</span><span style="color:#a3be8c;">SnapshotCreateTime</span><span>&#39;]:
+</span><span>    </span><span style="color:#b48ead;">raise </span><span style="color:#bf616a;">ValueError</span><span>(&quot;</span><span style="color:#a3be8c;">Can&#39;t restore before the first backup</span><span>&quot;)
+</span></code></pre>
+<p>But that's still not enough. When you are testing your backup restore script you run it a lot. And this validation frequently didn't stop me passing in an invalid date. It turned out that if you run it in quick succession there are still snapshots from the <strong>previous</strong> instance of <code>foo</code> hanging around. The only way to tell which snapshots belong to <strong>this</strong> instance is to filter on the <code>InstanceCreateTime</code>:</p>
+<pre data-lang="python" style="background-color:#2b303b;color:#c0c5ce;" class="language-python "><code class="language-python" data-lang="python"><span>result = client.</span><span style="color:#bf616a;">describe_db_snapshots</span><span>(</span><span style="color:#bf616a;">DBInstanceIdentifier</span><span>=dbname)
+</span><span>snapshots = result.</span><span style="color:#bf616a;">get</span><span>(&#39;</span><span style="color:#a3be8c;">DBSnapshots</span><span>&#39;, [])
+</span><span>snapshots = </span><span style="color:#96b5b4;">filter</span><span>(
+</span><span>    </span><span style="color:#b48ead;">lambda </span><span style="color:#bf616a;">s</span><span>: s[&#39;</span><span style="color:#a3be8c;">InstanceCreateTime</span><span>&#39;] == db[&#39;</span><span style="color:#a3be8c;">InstanceCreateTime</span><span>&#39;],
+</span><span>    snapshots,
+</span><span>)
+</span><span>snapshots.</span><span style="color:#bf616a;">sort</span><span>(</span><span style="color:#bf616a;">key</span><span>=</span><span style="color:#b48ead;">lambda </span><span style="color:#bf616a;">snapshot</span><span>: snapshot[&#39;</span><span style="color:#a3be8c;">SnapshotCreateTime</span><span>&#39;])
+</span><span style="color:#b48ead;">if </span><span>not snapshots or target &lt; snapshots[</span><span style="color:#d08770;">0</span><span>][&#39;</span><span style="color:#a3be8c;">SnapshotCreateTime</span><span>&#39;]:
+</span><span>    </span><span style="color:#b48ead;">raise </span><span style="color:#bf616a;">ValueError</span><span>(&quot;</span><span style="color:#a3be8c;">Can&#39;t restore before the first backup</span><span>&quot;)
+</span></code></pre>
+<p>Grim.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/aws/">aws</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/aws/">aws</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/rds/">rds</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/postgres/">postgres</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/backup/">backup</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

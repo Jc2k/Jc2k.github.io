@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - amazon</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/amazon/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Wed, 01 Apr 2015 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Dealing with EBS volume hotplug</title>
+          <pubDate>Wed, 01 Apr 2015 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/aws-block-deviced-added/</link>
+          <guid>https://unrouted.uk/blog/aws-block-deviced-added/</guid>
+          <description xml:base="https://unrouted.uk/blog/aws-block-deviced-added/">&lt;p&gt;EBS volumes are attached to EC2 instances that are running. So if you have a solr instance that starts on boot and needs to use that EBS volume you have a problem. How do you make solr wait for that EBS volume to be ready? How do you format it? How do you make all this idempotent.&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Monitoring NTP with CloudWatch</title>
+          <pubDate>Sat, 03 Jan 2015 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/monitoring-ntp/</link>
+          <guid>https://unrouted.uk/blog/monitoring-ntp/</guid>
+          <description xml:base="https://unrouted.uk/blog/monitoring-ntp/">&lt;p&gt;I&#x27;ve seen celery drop tasks on the floor because the queuers clock is to far ahead of the workers. I&#x27;ve seen boto fail to update Route53 because a clock was wrong. Time is super important. Here is a little script to look at the output of &lt;code&gt;ntpq -pn&lt;&#x2F;code&gt; and try and explain whats going on.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

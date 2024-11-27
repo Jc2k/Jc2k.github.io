@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - networking</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/networking/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Tue, 10 Jul 2018 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Random MAC Addresses That Aren&#x27;t</title>
+          <pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/usbnet-randomness/</link>
+          <guid>https://unrouted.uk/blog/usbnet-randomness/</guid>
+          <description xml:base="https://unrouted.uk/blog/usbnet-randomness/">&lt;p&gt;What to do when both sides of a USB network data transfer cable have the same MAC address??&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

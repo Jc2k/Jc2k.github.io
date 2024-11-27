@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - socket</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/socket/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Wed, 26 Apr 2017 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Multi-core twisted with systemd socket activation</title>
+          <pubDate>Wed, 26 Apr 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/multicore-twistd-with-systemd/</link>
+          <guid>https://unrouted.uk/blog/multicore-twistd-with-systemd/</guid>
+          <description xml:base="https://unrouted.uk/blog/multicore-twistd-with-systemd/">&lt;p&gt;With a stateless Twisted app you can scale by adding more instances. Unless you are explicitly offloading to subprocesses you will often have spare cores on the same box as your existing instance. But to exploit them you end up running haproxy or faking a &lt;a href=&quot;https:&#x2F;&#x2F;www.webair.com&#x2F;community&#x2F;simple-stateful-load-balancer-with-iptables-and-nat&#x2F;&quot;&gt;load balancer with iptables&lt;&#x2F;a&gt;. Are there any other options?&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

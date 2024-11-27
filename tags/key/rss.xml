@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - key</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/key/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Tue, 01 Jan 2019 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Unrevoking your GPG key</title>
+          <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/gpg-unrevoke/</link>
+          <guid>https://unrouted.uk/blog/gpg-unrevoke/</guid>
+          <description xml:base="https://unrouted.uk/blog/gpg-unrevoke/">&lt;p&gt;I recently had a bit of a whoopsie - I revoked my key before I had signed my transition statement. With all copies of my keyrings now aflicted how do I get a working version of my key back so I can retrospectively sign the transition statement?&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Adding and removing GPG uid&#x27;s</title>
+          <pubDate>Sun, 01 Jan 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/gpg-managing-uids/</link>
+          <guid>https://unrouted.uk/blog/gpg-managing-uids/</guid>
+          <description xml:base="https://unrouted.uk/blog/gpg-managing-uids/">&lt;p&gt;A GPG master key can be associated with multiple subkeys and multiple identities. If your key is well signed there is some value in keeping it as your identity evolves. For example, if you became an Apache Foundation &lt;a href=&quot;http:&#x2F;&#x2F;people.apache.org&#x2F;committer-index.html&quot;&gt;committer&lt;&#x2F;a&gt; you might get an &lt;code&gt;@apache.org&lt;&#x2F;code&gt; e-mail address. If you change jobs you might lose one e-mail address but gain another. You don&#x27;t need to throw away the signatures for the e-mail address you are keeping. Obviously adding a new e-mail address to an existing key does not mean that the new identity is as immediately well trusted.&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Managing your GPG keys with an airgapped machine</title>
+          <pubDate>Fri, 01 Jan 2016 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/gpg-airgap/</link>
+          <guid>https://unrouted.uk/blog/gpg-airgap/</guid>
+          <description xml:base="https://unrouted.uk/blog/gpg-airgap/">&lt;p&gt;I have an offline environment for managing changes to my GPG keys. It&#x27;s an old laptop with no WIFI card and no permanent internal storage. This is a quick TL;DR summary of what you could do.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

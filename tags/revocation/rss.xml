@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - revocation</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/revocation/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Tue, 01 Jan 2019 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Unrevoking your GPG key</title>
+          <pubDate>Tue, 01 Jan 2019 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/gpg-unrevoke/</link>
+          <guid>https://unrouted.uk/blog/gpg-unrevoke/</guid>
+          <description xml:base="https://unrouted.uk/blog/gpg-unrevoke/">&lt;p&gt;I recently had a bit of a whoopsie - I revoked my key before I had signed my transition statement. With all copies of my keyrings now aflicted how do I get a working version of my key back so I can retrospectively sign the transition statement?&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

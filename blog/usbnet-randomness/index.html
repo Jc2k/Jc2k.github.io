@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="2 network devices with random MAC addresses... getting the same MAC address?" />
+  
+  
+
+  <title>
+    
+    Random MAC Addresses That Aren&#x27;t
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Random MAC Addresses That Aren&#x27;t</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>4 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2018-07-10
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>What to do when both sides of a USB network data transfer cable have the same MAC address??</p>
+<span id="continue-reading"></span>
+<p>I've built a Raspberry Pi based GameBoy based on <a href="https://www.youtube.com/watch?v=jweRkxGF1mA">Kite's SuperAIO</a>. Where the original GameBoy had a GameLink socket I have a USB socket. I thought it would be a nice retro touch if i could plug a cable into 2 GameBoys in the same place and have working GameLink emulation (2 player tetris, pokemon trading, etc).</p>
+<p>Data transfer cables like <a href="https://www.amazon.co.uk/d/Cables/Transfer-Cable/B01B6X8QP0/">this one</a> (i tried the USB 2 version of it) used to be popular for migrating data from an old Windows computer to a new one. These days they come with their own synchronisation software. But really they are just 2 usb network adapters connected together. On a linux box (like my GameBoy) both ends will get a new <code>usb0</code> interface which you can configure any way you like.</p>
+<p>In my previous post I talked about how i'd configured systemd to start some python code when the cable was plugged in. This does UDP multicast discovery (sort of like <a href="https://gist.github.com/mcfloundinho/4f785d4546057b49b56c">this</a>) and writes the Gambatte core options file for both sides. And as it was a host-to-host link I just use link local addressing. But there was a hitch, obviously.</p>
+<p>My first assumption was that the cable would have two proper MAC address. Like 2 real hardware network cards connected together. On testing with a raspberry pi it looked like both ends had the same mac address. That was weird and felt broken but I didn't think too much of it until I realised my link local addresses were the same on both systems. And it looked like duplicate address detection wasn't happening (presumably it assumes unique mac addresses?).</p>
+<p>The first thing I tried was in systemd (its my hammer, everything is now a nail). In <code>/etc/systemd/system/00-gamelink.link</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>[Match]
+</span><span>Driver=plusb
+</span><span>
+</span><span>[Link]
+</span><span>MACAddressPolicy=random
+</span></code></pre>
+<p>And various permutations of. But none of them did anything. Sigh.</p>
+<p>At first i wasn't sure I had the right <code>[Match]</code> stanza. I did.</p>
+<p>Then I wasn't sure about the name of the <code>.link</code> file. The sort order of <code>.link</code> files is important. Each device is tested against all criteria in the <code>[Match]</code> section and its the first <code>.link</code> file to match the criteria that is used. So if the sort order in use meant that <code>99-default.link</code> came before <code>gamelink.link</code> then it would never be used. It wasn't that.</p>
+<p>Eventually I ended up in the systemd source code. From <a href="https://github.com/systemd/systemd/blob/6b3d378331fe714c7bf2263eaa9a8b33fc878e7c/src/udev/net/link-config.c#L458">here</a>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>case MACPOLICY_RANDOM:
+</span><span>        if (!mac_is_random(device)) {
+</span><span>                r = get_mac(device, true, &amp;generated_mac);
+</span><span>                if (r == -ENOENT) {
+</span><span>                        log_warning_errno(r, &quot;Could not generate random MAC address for %s: %m&quot;, old_name);
+</span><span>                        break;
+</span><span>                } else if (r &lt; 0)
+</span><span>                        return r;
+</span><span>                mac = &amp;generated_mac;
+</span><span>        }
+</span><span>        break;
+</span></code></pre>
+<p>So if the MAC address is already random the policy won't do anything. The only think other than systemd that might set the mac address in my setup is the kernel itself. From <a href="https://github.com/torvalds/linux/blob/bfe9b9d2df669a57a95d641ed46eb018e204c6ce/drivers/net/usb/usbnet.c#L2254">here</a> I found:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>static int __init usbnet_init(void)
+</span><span>{
+</span><span>        /* Compiler should optimize this out. */
+</span><span>        BUILD_BUG_ON(
+</span><span>                FIELD_SIZEOF(struct sk_buff, cb) &lt; sizeof(struct skb_data));
+</span><span>
+</span><span>        eth_random_addr(node_id);
+</span><span>        return 0;
+</span><span>}
+</span></code></pre>
+<p>A driver's init is called when the driver is loaded, not when a device is loaded. Surely it can't be this though - it seems unlikely that a module loaded at boot time would be loaded so deterministically that the mac would be the same on 2 separate systems, even if they were using the same image.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>cat output/build/linux-*/.config
+</span><span>&lt;snip&gt;
+</span><span>CONFIG_USB_USBNET=y
+</span></code></pre>
+<p>Ah, it's compiled in.</p>
+<p>Forcing <code>usbnet</code> to be a module hides the issue. I'm not sure what this is actually doing. If usbnet is compiled in:</p>
+<ul>
+<li>Does usbnet_init get called before the PRNG is initialized at all?</li>
+<li>Does usbnet_init get called before there is any entropy?</li>
+<li>Is the entropy for the PRNG actually unreliable/missing this early (e.g. there is no RTC and no physical ethernet)</li>
+</ul>
+<p>Either way, as a module there is enough of a delay for <code>eth_random_addr</code> to return some slightly random data for us, so link local addressing works, so my python code works. Hurrah.</p>
+<p>Also given the driver allocates a single random mac address at boot (or module load time) does this mean you can't plug multiple usbnet cables into the same linux box?</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/kernel/">kernel</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/kernel/">kernel</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/systemd/">systemd</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/usb/">usb</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/networking/">networking</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

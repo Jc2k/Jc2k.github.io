@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="Using an airgapped ancient laptop with a Debian live environment to manage your GPG keys" />
+  
+  
+
+  <title>
+    
+    Managing your GPG keys with an airgapped machine
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Managing your GPG keys with an airgapped machine</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>11 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2016-01-01
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>I have an offline environment for managing changes to my GPG keys. It's an old laptop with no WIFI card and no permanent internal storage. This is a quick TL;DR summary of what you could do.</p>
+<span id="continue-reading"></span>
+<p>I use a stock Debian LiveCD <a href="http://cdimage.debian.org/debian-cd/current-live/i386/iso-hybrid/debian-live-8.6.0-i386-standard.iso">(here)</a>. For this CD the username/password is user/live. You can use <code>sudo</code> without a password. It has GPG already installed.</p>
+<p>You will need a USB flash drive for copying files between the live environment and a machine with an internet connection. You will need a 2nd USB flash drive for long term offline storage of your master key.</p>
+<h2 id="initial-environment-set-up">Initial environment set up</h2>
+<p>Ideally you should generate your key in this environment and never expose it to an internet connected system. <a href="https://github.com/attila-lendvai/gpg-keygen">Attilla Lendvai</a> has a great script and a great explanation of some of the concepts. It's worth a read, but the TL;DR is as follows.</p>
+<p>We need a good <code>~/.gnupg/gpg.conf</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>fixed-list-mode
+</span><span>keyid-format 0xlong
+</span><span>personal-digest-preferences SHA512
+</span><span>default-preference-list SHA512 SHA384 SHA256 SHA224 AES256 AES192 AES CAST5 BZIP2 ZLIB ZIP Uncompressed
+</span><span>verify-options show-uid-validity
+</span><span>list-options show-uid-validity
+</span><span>cert-digest-algo SHA512
+</span></code></pre>
+<p>Now we can generate the main key. This key will only be used to sign subkeys. It is important to keep this keep protected - if a subkey is lost it can be revoked and replaced without falling out of the web of trust. If your main key is compromised you will need to start over. Go for a 4096 RSA only key:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg --gen-key
+</span><span>gpg (GnuPG) 1.4.20; Copyright (C) 2015 Free Software Foundation, Inc.
+</span><span>This is free software: you are free to change and redistribute it.
+</span><span>There is NO WARRANTY, to the extent permitted by law.
+</span><span>
+</span><span>gpg: directory &#39;/home/john/.gnupg&#39; created
+</span><span>gpg: new configuration file &#39;/home/john/.gnupg/gpg.conf&#39; created
+</span><span>gpg: WARNING: options in &#39;/home/john/.gnupg/gpg.conf&#39; are not yet active during this run
+</span><span>gpg: keyring &#39;/home/john/.gnupg/secring.gpg&#39; created
+</span><span>gpg: keyring &#39;/home/john/.gnupg/pubring.gpg&#39; created
+</span><span>Please select what kind of key you want:
+</span><span>   (1) RSA and RSA (default)
+</span><span>   (2) DSA and Elgamal
+</span><span>   (3) DSA (sign only)
+</span><span>   (4) RSA (sign only)
+</span><span>Your selection? 4
+</span><span>RSA keys may be between 1024 and 4096 bits long.
+</span><span>What keysize do you want? (2048) 4096
+</span><span>Requested keysize is 4096 bits
+</span><span>Please specify how long the key should be valid.
+</span><span>         0 = key does not expire
+</span><span>      &lt;n&gt;  = key expires in n days
+</span><span>      &lt;n&gt;w = key expires in n weeks
+</span><span>      &lt;n&gt;m = key expires in n months
+</span><span>      &lt;n&gt;y = key expires in n years
+</span><span>Key is valid for? (0) 0
+</span><span>Key does not expire at all
+</span><span>Is this correct? (y/N) y
+</span><span>
+</span><span>You need a user ID to identify your key; the software constructs the user ID
+</span><span>from the Real Name, Comment and Email Address in this form:
+</span><span>    &quot;Heinrich Heine (Der Dichter) &lt;heinrichh@duesseldorf.de&gt;&quot;
+</span><span>
+</span><span>Real name: John Smith
+</span><span>Email address: john.smith@example.com
+</span><span>Comment:
+</span><span>You selected this USER-ID:
+</span><span>    &quot;John Smith &lt;john.smith@example.com&gt;&quot;
+</span><span>
+</span><span>Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+</span><span>You need a Passphrase to protect your secret key.
+</span><span>
+</span><span>We need to generate a lot of random bytes. It is a good idea to perform
+</span><span>some other action (type on the keyboard, move the mouse, utilize the
+</span><span>disks) during the prime generation; this gives the random number
+</span><span>generator a better chance to gain enough entropy.
+</span><span>..+++++
+</span><span>..................................................+++++
+</span><span>gpg: /home/john/.gnupg/trustdb.gpg: trustdb created
+</span><span>gpg: key B05E3F37 marked as ultimately trusted
+</span><span>public and secret key created and signed.
+</span><span>
+</span><span>gpg: checking the trustdb
+</span><span>gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+</span><span>gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+</span><span>pub   4096R/B05E3F37 2016-10-26
+</span><span>      Key fingerprint = 4C0A CCA7 8170 E95A 22FE  C7B2 EA57 D591 B05E 3F37
+</span><span>uid                  John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>Note that this key cannot be used for encryption.  You may want to use
+</span><span>the command &quot;--edit-key&quot; to generate a subkey for this purpose.
+</span></code></pre>
+<p>Generate the subkeys:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg --edit-key EA57D591B05E3F37
+</span><span>gpg (GnuPG) 1.4.20; Copyright (C) 2015 Free Software Foundation, Inc.
+</span><span>This is free software: you are free to change and redistribute it.
+</span><span>There is NO WARRANTY, to the extent permitted by law.
+</span><span>
+</span><span>Secret key is available.
+</span><span>
+</span><span>pub  4096R/B05E3F37  created: 2016-10-26  expires: never       usage: SC  
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>[ultimate] (1). John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>gpg&gt; addkey
+</span><span>Key is protected.
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Smith &lt;john.smith@example.com&gt;&quot;
+</span><span>4096-bit RSA key, ID B05E3F37, created 2016-10-26
+</span><span>
+</span><span>gpg: gpg-agent is not available in this session
+</span><span>Please select what kind of key you want:
+</span><span>   (3) DSA (sign only)
+</span><span>   (4) RSA (sign only)
+</span><span>   (5) Elgamal (encrypt only)
+</span><span>   (6) RSA (encrypt only)
+</span><span>Your selection? 6
+</span><span>RSA keys may be between 1024 and 4096 bits long.
+</span><span>What keysize do you want? (2048) 4096
+</span><span>Requested keysize is 4096 bits
+</span><span>Please specify how long the key should be valid.
+</span><span>         0 = key does not expire
+</span><span>      &lt;n&gt;  = key expires in n days
+</span><span>      &lt;n&gt;w = key expires in n weeks
+</span><span>      &lt;n&gt;m = key expires in n months
+</span><span>      &lt;n&gt;y = key expires in n years
+</span><span>Key is valid for? (0) 3y
+</span><span>Key expires at Sat 26 Oct 2019 08:50:37 AM PDT
+</span><span>Is this correct? (y/N) y
+</span><span>Really create? (y/N) y
+</span><span>We need to generate a lot of random bytes. It is a good idea to perform
+</span><span>some other action (type on the keyboard, move the mouse, utilize the
+</span><span>disks) during the prime generation; this gives the random number
+</span><span>generator a better chance to gain enough entropy.
+</span><span>..................+++++
+</span><span>..............................+++++
+</span><span>
+</span><span>pub  4096R/B05E3F37  created: 2016-10-26  expires: never       usage: SC  
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  4096R/BF4CEBBA  created: 2016-10-26  expires: 2019-10-26  usage: E   
+</span><span>[ultimate] (1). John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>gpg&gt; addkey
+</span><span>Key is protected.
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Smith &lt;john.smith@example.com&gt;&quot;
+</span><span>4096-bit RSA key, ID B05E3F37, created 2016-10-26
+</span><span>
+</span><span>Please select what kind of key you want:
+</span><span>   (3) DSA (sign only)
+</span><span>   (4) RSA (sign only)
+</span><span>   (5) Elgamal (encrypt only)
+</span><span>   (6) RSA (encrypt only)
+</span><span>Your selection? 4
+</span><span>RSA keys may be between 1024 and 4096 bits long.
+</span><span>What keysize do you want? (2048)
+</span><span>Requested keysize is 2048 bits
+</span><span>Please specify how long the key should be valid.
+</span><span>         0 = key does not expire
+</span><span>      &lt;n&gt;  = key expires in n days
+</span><span>      &lt;n&gt;w = key expires in n weeks
+</span><span>      &lt;n&gt;m = key expires in n months
+</span><span>      &lt;n&gt;y = key expires in n years
+</span><span>Key is valid for? (0) 3y
+</span><span>Key expires at Sat 26 Oct 2019 08:52:00 AM PDT
+</span><span>Is this correct? (y/N) y
+</span><span>Really create? (y/N) y
+</span><span>We need to generate a lot of random bytes. It is a good idea to perform
+</span><span>some other action (type on the keyboard, move the mouse, utilize the
+</span><span>disks) during the prime generation; this gives the random number
+</span><span>generator a better chance to gain enough entropy.
+</span><span>.+++++
+</span><span>+++++
+</span><span>
+</span><span>pub  4096R/B05E3F37  created: 2016-10-26  expires: never       usage: SC  
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  4096R/BF4CEBBA  created: 2016-10-26  expires: 2019-10-26  usage: E   
+</span><span>sub  2048R/45F1A70C  created: 2016-10-26  expires: 2019-10-26  usage: S   
+</span><span>[ultimate] (1). John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>gpg&gt; save
+</span></code></pre>
+<p>You can also generate authentication keys in <code>--expert</code> mode. I use a GPG authentication key for SSH.</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg --expert --edit-key EA57D591B05E3F37
+</span><span>gpg (GnuPG) 1.4.20; Copyright (C) 2015 Free Software Foundation, Inc.
+</span><span>This is free software: you are free to change and redistribute it.
+</span><span>There is NO WARRANTY, to the extent permitted by law.
+</span><span>
+</span><span>Secret key is available.
+</span><span>
+</span><span>pub  4096R/B05E3F37  created: 2016-10-26  expires: never       usage: SC  
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  4096R/BF4CEBBA  created: 2016-10-26  expires: 2019-10-26  usage: E   
+</span><span>sub  2048R/45F1A70C  created: 2016-10-26  expires: 2019-10-26  usage: S   
+</span><span>[ultimate] (1). John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>gpg&gt; addkey
+</span><span>Key is protected.
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Smith &lt;john.smith@example.com&gt;&quot;
+</span><span>4096-bit RSA key, ID B05E3F37, created 2016-10-26
+</span><span>
+</span><span>gpg: gpg-agent is not available in this session
+</span><span>Please select what kind of key you want:
+</span><span>   (3) DSA (sign only)
+</span><span>   (4) RSA (sign only)
+</span><span>   (5) Elgamal (encrypt only)
+</span><span>   (6) RSA (encrypt only)
+</span><span>   (7) DSA (set your own capabilities)
+</span><span>   (8) RSA (set your own capabilities)
+</span><span>Your selection? 8
+</span><span>
+</span><span>Possible actions for a RSA key: Sign Encrypt Authenticate
+</span><span>Current allowed actions: Sign Encrypt
+</span><span>
+</span><span>   (S) Toggle the sign capability
+</span><span>   (E) Toggle the encrypt capability
+</span><span>   (A) Toggle the authenticate capability
+</span><span>   (Q) Finished
+</span><span>
+</span><span>Your selection? A
+</span><span>
+</span><span>Possible actions for a RSA key: Sign Encrypt Authenticate
+</span><span>Current allowed actions: Sign Encrypt Authenticate
+</span><span>
+</span><span>   (S) Toggle the sign capability
+</span><span>   (E) Toggle the encrypt capability
+</span><span>   (A) Toggle the authenticate capability
+</span><span>   (Q) Finished
+</span><span>
+</span><span>Your selection? S
+</span><span>
+</span><span>Possible actions for a RSA key: Sign Encrypt Authenticate
+</span><span>Current allowed actions: Encrypt Authenticate
+</span><span>
+</span><span>   (S) Toggle the sign capability
+</span><span>   (E) Toggle the encrypt capability
+</span><span>   (A) Toggle the authenticate capability
+</span><span>   (Q) Finished
+</span><span>
+</span><span>Your selection? E
+</span><span>
+</span><span>Possible actions for a RSA key: Sign Encrypt Authenticate
+</span><span>Current allowed actions: Authenticate
+</span><span>
+</span><span>   (S) Toggle the sign capability
+</span><span>   (E) Toggle the encrypt capability
+</span><span>   (A) Toggle the authenticate capability
+</span><span>   (Q) Finished
+</span><span>
+</span><span>Your selection? Q
+</span><span>RSA keys may be between 1024 and 4096 bits long.
+</span><span>What keysize do you want? (2048) 4096
+</span><span>Requested keysize is 4096 bits
+</span><span>Please specify how long the key should be valid.
+</span><span>         0 = key does not expire
+</span><span>      &lt;n&gt;  = key expires in n days
+</span><span>      &lt;n&gt;w = key expires in n weeks
+</span><span>      &lt;n&gt;m = key expires in n months
+</span><span>      &lt;n&gt;y = key expires in n years
+</span><span>Key is valid for? (0) 3y
+</span><span>Key expires at Sat 26 Oct 2019 08:56:53 AM PDT
+</span><span>Is this correct? (y/N) y
+</span><span>Really create? (y/N) y
+</span><span>We need to generate a lot of random bytes. It is a good idea to perform
+</span><span>some other action (type on the keyboard, move the mouse, utilize the
+</span><span>disks) during the prime generation; this gives the random number
+</span><span>generator a better chance to gain enough entropy.
+</span><span>....+++++
+</span><span>.......+++++
+</span><span>
+</span><span>pub  4096R/B05E3F37  created: 2016-10-26  expires: never       usage: SC  
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  4096R/BF4CEBBA  created: 2016-10-26  expires: 2019-10-26  usage: E   
+</span><span>sub  2048R/45F1A70C  created: 2016-10-26  expires: 2019-10-26  usage: S   
+</span><span>sub  4096R/AF3A5B1C  created: 2016-10-26  expires: 2019-10-26  usage: A   
+</span><span>[ultimate] (1). John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>gpg&gt; save
+</span></code></pre>
+<p>It's a good idea to generate a revocation cert:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg -a  --output /media/revocation.asc --gen-revoke EA57D591B05E3F37
+</span><span>
+</span><span>sec  4096R/B05E3F37 2016-10-26 John Smith &lt;john.smith@example.com&gt;
+</span><span>
+</span><span>Create a revocation certificate for this key? (y/N) y
+</span><span>Please select the reason for the revocation:
+</span><span>  0 = No reason specified
+</span><span>  1 = Key has been compromised
+</span><span>  2 = Key is superseded
+</span><span>  3 = Key is no longer used
+</span><span>  Q = Cancel
+</span><span>(Probably you want to select 1 here)
+</span><span>Your decision? 1
+</span><span>Enter an optional description; end it with an empty line:
+</span><span>&gt; Revocation certificate generated when key itself was; if this cert is used then i no longer have access to the key and it should be treated as compromised
+</span><span>&gt;
+</span><span>Reason for revocation: Key has been compromised
+</span><span>Revocation certificate generated when key itself was; if this cert is used then i no longer have access to the key and it should be treated as compromised
+</span><span>Is this okay? (y/N) y
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Smith &lt;john.smith@example.com&gt;&quot;
+</span><span>4096-bit RSA key, ID B05E3F37, created 2016-10-26
+</span><span>
+</span><span>gpg: gpg-agent is not available in this session
+</span><span>Revocation certificate created.
+</span><span>
+</span><span>Please move it to a medium which you can hide away; if Mallory gets
+</span><span>access to this certificate he can use it to make your key unusable.
+</span><span>It is smart to print this certificate and store it away, just in case
+</span><span>your media become unreadable.  But have some caution:  The print system of
+</span><span>your machine might store the data and make it available to others!
+</span></code></pre>
+<p>Finally you need to export an offline copy of your keys:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg -a --export EA57D591B05E3F37 &gt; /media/public-key.asc
+</span><span>gpg -a --export-secret-key EA57D591B05E3F37 &gt; /media/master-key.asc
+</span><span>gpg -a --export-secret-subkeys EA57D591B05E3F37 &gt; /media/secret-sub-keys.asc
+</span></code></pre>
+<h2 id="subsequent-usage-of-live-environment">Subsequent usage of live environment</h2>
+<p>When I boot the machine I copy over my gpg.conf from an SD card and import my keys:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>mount /dev/mmcblk0 /media
+</span><span>mkdir ~/.gnupg
+</span><span>cp /media/gpg.conf ~/.gnupg/gpg.conf
+</span><span>gpg --import /media/public-key.asc
+</span><span>gpg --import /media/master-key.asc
+</span></code></pre>
+<p>(I actually have that scripted, so i mount <code>/media</code> and run <code>/media/init</code>).</p>
+<p>At that point you can perform whatever changes needed, for example <code>gpg --edit-key</code>.</p>
+<p>When i've done making changes i export the keys back to the SD card. Again, there is a bash script at <code>/media/save</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>cp ~/.gnupg/gpg.conf /media/gpg.conf
+</span><span>gpg -a --export &gt; /media/public-key.asc
+</span><span>gpg -a --export-secret-key &gt; /media/master-key.asc
+</span><span>gpg -a --export-secret-subkeys &gt; /media/secret-sub-keys.asc
+</span></code></pre>
+<p>(You'll want to give those commands your key id).</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                
+                    
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/gpg/">gpg</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/key/">key</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/encryption/">encryption</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/opsec/">opsec</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

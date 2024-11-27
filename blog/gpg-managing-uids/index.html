@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="How to edit your GPG keypair to remove an e-mail address and add another" />
+  
+  
+
+  <title>
+    
+    Adding and removing GPG uid&#x27;s
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Adding and removing GPG uid&#x27;s</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>4 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2017-01-01
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>A GPG master key can be associated with multiple subkeys and multiple identities. If your key is well signed there is some value in keeping it as your identity evolves. For example, if you became an Apache Foundation <a href="http://people.apache.org/committer-index.html">committer</a> you might get an <code>@apache.org</code> e-mail address. If you change jobs you might lose one e-mail address but gain another. You don't need to throw away the signatures for the e-mail address you are keeping. Obviously adding a new e-mail address to an existing key does not mean that the new identity is as immediately well trusted.</p>
+<span id="continue-reading"></span>
+<p>On an air-gapped machine, import your latest public key and your secret key:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg --import /media/gpg-master/public.asc
+</span><span>gpg --import /media/gpg-master/secret.asc
+</span></code></pre>
+<p>Drop in to edit mode for your key:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg --edit-key 4FB676F4
+</span><span>pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
+</span><span>[ultimate] (1). John Carr &lt;john.carr@example.tld&gt;
+</span><span>[ultimate] (2)  John Carr &lt;john.carr@corp.tld&gt;
+</span></code></pre>
+<p>Select the uid you want to revoke:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg&gt; uid 2
+</span><span>
+</span><span>pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
+</span><span>[ultimate] (1). John Carr &lt;john.carr@example.tld&gt;
+</span><span>[ultimate] (2)* John Carr &lt;john.carr@corp.tld&gt;
+</span></code></pre>
+<p>Revoke it:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg&gt; revuid
+</span><span>Really revoke this user ID? (y/N) y
+</span><span>Please select the reason for the revocation:
+</span><span>  0 = No reason specified
+</span><span>  4 = User ID is no longer valid
+</span><span>  Q = Cancel
+</span><span>(Probably you want to select 4 here)
+</span><span>Your decision? 4
+</span><span>Enter an optional description; end it with an empty line:
+</span><span>&gt;
+</span><span>Reason for revocation: User ID is no longer valid
+</span><span>(No description given)
+</span><span>Is this okay? (y/N) y
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Carr &lt;john.carr@example.tld&gt;&quot;
+</span><span>2048-bit RSA key, ID 4FB676F4, created 2014-05-27
+</span><span>
+</span><span>
+</span><span>pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
+</span><span>[ultimate] (1). John Carr &lt;john.carr@example.tld&gt;
+</span><span>[ revoked] (2)  John Carr &lt;john.carr@corp.tld&gt;
+</span></code></pre>
+<p>Save the changes (this will drop you back to the shell):</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg&gt; save
+</span></code></pre>
+<p>Now to add a new uid:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ gpg --edit-key 4FB676F4
+</span><span>pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
+</span><span>[ultimate] (1). John Carr &lt;john.carr@example.tld&gt;
+</span><span>[ revoked] (2)  John Carr &lt;john.carr@corp.tld&gt;
+</span></code></pre>
+<p>Use <code>adduid</code> to add a new identity:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg&gt; adduid
+</span><span>Real name: John Carr
+</span><span>Email address: john.carr@evilcorp.tld
+</span><span>Comment:
+</span><span>You selected this USER-ID:
+</span><span>    &quot;John Carr &lt;john.carr@evilcorp.ltd&gt;&quot;
+</span><span>
+</span><span>Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+</span><span>
+</span><span>You need a passphrase to unlock the secret key for
+</span><span>user: &quot;John Carr &lt;john.carr@evilcorp.tld&gt;&quot;
+</span><span>4096-bit RSA key, ID 4FB676F4, created 2014-05-27
+</span><span>
+</span><span>
+</span><span>pub  2048R/4FB676F4  created: 2014-05-27  expires: 2017-05-26  usage: SCA
+</span><span>                     trust: ultimate      validity: ultimate
+</span><span>sub  2048R/4CA0D49E  created: 2014-05-27  expires: 2017-05-26  usage: E
+</span><span>[ultimate] (1). John Carr &lt;john.carr@example.tld&gt;
+</span><span>[ revoked] (2)  John Carr &lt;john.carr@corp.tld&gt;
+</span><span>[ultimate] (3)  John Carr &lt;john.carr@evilcorp.tld&gt;
+</span></code></pre>
+<p>Save the changes (this will drop you back to the shell):</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg&gt; save
+</span></code></pre>
+<p>Update your master copy of your public key:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg -a --export 4FB676F4 &gt; /media/gpg-master/public.asc
+</span></code></pre>
+<p>Then:</p>
+<ul>
+<li>Copy it onto another removal storage (usb key, sd card, etc) and take it back to a machine with gpg and internets.</li>
+<li>Import it with <code>gpg --import /Volume/Untitled/public.asc</code></li>
+<li>Update the public key servers with <code>gpg --send-key 4FB676F4</code></li>
+<li>Update your keybase <a href="https://keybase.io/jc2k">profile</a>.</li>
+<li>Update your blog's <a href="http://unrouted.io/gpg/key.txt">copy</a> of it</li>
+</ul>
+<p>FIN.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                
+                    
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/gpg/">gpg</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/key/">key</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/encryption/">encryption</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/opsec/">opsec</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

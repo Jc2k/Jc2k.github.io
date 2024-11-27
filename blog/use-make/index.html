@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="There are lots of new tools to help you use Lambda, but you probably don&#x27;t need them" />
+  
+  
+
+  <title>
+    
+    How to build python code bundles for AWS Lambda quickly and easily
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">How to build python code bundles for AWS Lambda quickly and easily</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>6 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2016-07-21
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>AWS Lambda is conceptually really cool but as soon as your code creeps beyond a single python file that uses <code>botocore</code> things start to get messy and cumbersome. It's tempting to add an entirely new tool to your workflow, but theres really no need. The approach I use is good old <code>make</code>.</p>
+<span id="continue-reading"></span>
+<p>It's a perfect fit really. We have input files:</p>
+<ul>
+<li>A <code>requirements.txt</code> or some other definition of our dependencies</li>
+<li>Some code that is checked in along side the <code>requirements.txt</code></li>
+<li>Possibly some configuration that needs to be bundled alongside the code</li>
+<li>An entrypoint - such as <code>lambda_handler.py</code></li>
+</ul>
+<p>We want to take these and assemble a <code>lambda.zip</code>.</p>
+<p>One of the nice things about this setup is that when you run <code>make</code> it will only update the things that have changed. This means that the <code>requirements.txt</code> gather step only needs to be run once - rebuilding the zip files can actually be really quick.</p>
+<h1 id="make-101">Make 101</h1>
+<p>If you are familiar with how a <code>Makefile</code> is plumbed together you can skip this bit. A <code>Makefile</code> is a collection of build targets and the rules for how to build those targets.</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#8fa1b3;">lambda.zip</span><span>: </span><span style="color:#a3be8c;">lambda_handler.py
+</span><span>	</span><span style="color:#bf616a;">mkdir -p</span><span> build/lambda_zip
+</span><span>	</span><span style="color:#bf616a;">cp</span><span> lambda_handler.py build_lambda_zip/
+</span><span>	</span><span style="color:#bf616a;">rm -f</span><span> lambda.zip
+</span><span>	</span><span style="color:#96b5b4;">cd</span><span> build_lambda_zip/ &amp;&amp; </span><span style="color:#bf616a;">zip -q -X -9 -r</span><span> ../lambda.zip *
+</span></code></pre>
+<p>In this example, <code>lambda.zip</code> is the target. <code>make</code> is responsible for generating that target, and if any of the dependencies listed (<code>lambda_handler.py</code> in this example) are newer than <code>lambda.zip</code> it knows it needs to recreate the zip.</p>
+<p>One <strong>very</strong> important thing is that a <code>Makefile</code> <strong>must</strong> be tab indented.</p>
+<p>Sometimes there isn't a single file that is generated by a build step. Sometimes there might not even be a file. For example, you might want to upload a build artifact only when something has changed. The <code>make</code> idiom for this is to use a stamp file. A stamp file is a 0 byte marker that indicates some process has been completed at a give date and time. So for example:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#8fa1b3;">upload.stamp</span><span>: </span><span style="color:#a3be8c;">lambda.zip
+</span><span>	</span><span style="color:#bf616a;">aws</span><span> lambda update-function-code</span><span style="color:#bf616a;"> --function-name</span><span> MyFunction</span><span style="color:#bf616a;"> --zip-file</span><span> lambda.zip
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<p>The build target is <code>upload.stamp</code>. The target needs building every time lambda.zip is updated. <code>awscli</code> is used to do a code upload, then <code>touch $@</code> creates the stamp file (or updates its modification timestamp). This upload is now idempotent.</p>
+<p>There are some special rules in <code>make</code>. These are rules that don't have targets on disk. For example, <code>make clean</code>. Without some configuration hint make would believe that you wanted to create a file called <code>clean</code>. If you happened to have a file called <code>clean</code> then make would think that the build was up to date and that it didn't need to clean anything. What this means is that we need targets that are <strong>always</strong> built. These are called <code>.PHONY</code> targets, and you need to include a declaration in your <code>Makefile</code> like this:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#8fa1b3;">.PHONY</span><span>: </span><span style="color:#a3be8c;">all clean
+</span></code></pre>
+<h1 id="basic-makefile-structure">Basic Makefile structure</h1>
+<p>We'll look at the basic skaffold first before delving into specifics.</p>
+<p>I declare a bunch of paths at the top of my <code>Makefile</code>. They are all relative to the cwd which i grab with <code>$(shell pwd)</code>:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#bf616a;">SRC_DIR</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#96b5b4;">shell </span><span style="color:#bf616a;">pwd</span><span style="color:#b48ead;">)
+</span><span style="color:#bf616a;">BUILD_DIR</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">SRC_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/build
+</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/staging-directory-stamp
+</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/staging
+</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/lambda.zip
+</span></code></pre>
+<p>The <code>all</code> target defines what should happen if you just run <code>make</code> with no arguments. We let make know about our <code>.PHONY</code> rules too:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#8fa1b3;">all</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)
+</span><span style="color:#8fa1b3;">.PHONY</span><span>: </span><span style="color:#a3be8c;">all clean
+</span></code></pre>
+<p><code>make clean</code> needs to delete any files that were created by running <code>make</code>:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#8fa1b3;">clean</span><span>:
+</span><span>	</span><span style="color:#bf616a;">rm -f </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -rf </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -f </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)
+</span></code></pre>
+<p>We have a build step to generate a staging directory when the <code>lambda_handler.py</code> code changes:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">SRC_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/lambda_handler.py
+</span><span>	</span><span style="color:#bf616a;">rm -rf </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">mkdir </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">cp </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">SRC_DIR</span><span style="color:#b48ead;">)</span><span>/lambda_handler.py </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)</span><span>/
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<p>And then we zip it up as <code>$cwd/build/lambda.zip</code>:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -f </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#96b5b4;">cd </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">) </span><span>&amp;&amp; </span><span style="color:#bf616a;">zip -q -9 -r </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">) </span><span>*
+</span></code></pre>
+<h1 id="collecting-and-extracting-wheels">Collecting and extracting wheels</h1>
+<p>We want to collect all the eggs in <code>requirements.txt</code>. We'll use the <code>pip wheel</code> command to do any compilation and build a wheelhouse. Subsequent builds can reuse the same wheels and avoid compilation:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">CACHE_WHEELHOUSE_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">SRC_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/requirements.txt
+</span><span>	</span><span style="color:#bf616a;">pip</span><span> wheel</span><span style="color:#bf616a;"> -q -r</span><span> requirements.txt .</span><span style="color:#bf616a;"> --wheel-dir</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">CACHE_WHEELHOUSE</span><span style="color:#b48ead;">)</span><span style="color:#bf616a;"> --find-links</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">CACHE_WHEELHOUSE</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<p>We want to preserve the built wheels as much as we can, but we don't have a mechanism to purge old wheels. Because we want to be able to get just the wheels related to the current <code>requirements.txt</code> we use a second wheelhouse that we delete before repopulating it. By using the first wheelhouse as a <code>--find-links</code> this is pretty much a straight copy and fast:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">CACHE_WHEELHOUSE_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -rf </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">pip</span><span> wheel</span><span style="color:#bf616a;"> -q -r</span><span> requirements.txt .</span><span style="color:#bf616a;"> --wheel-dir</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE</span><span style="color:#b48ead;">)</span><span style="color:#bf616a;"> --find-links</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">CACHE_WHEELHOUSE</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<p>Now the best part of collecting wheels like this is that we can just unzip them into the build directory and they will be in the correct location:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -rf </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">unzip -q </span><span>&quot;</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/*.whl</span><span>&quot;</span><span style="color:#bf616a;"> -d </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<h1 id="reproducibility-and-idempotence">Reproducibility and Idempotence</h1>
+<p>One nice property of this is theoretically if a build is run twice on the same base OS then you should get the same output, bit for bit. And this should mean use can use the <code>CodeSha256</code> property returned from the Lambda API to not only prove what is deployed is what you think it is but also build in idempotence. However its not that simple.</p>
+<p>If your zip building process is not creating identical output you can use the Debian <code>diffoscope</code> utility to help figure out what went wrong. Here are some things we spotted and fixed.</p>
+<p>First we need to add an extra parameter to our <code>zip</code> incantation:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -f </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#96b5b4;">cd </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">) </span><span>&amp;&amp; </span><span style="color:#bf616a;">zip -q -X -9 -r </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">) </span><span>*
+</span></code></pre>
+<p>This turns on <code>--no-extra</code> mode. This tells zip to ignore non-essential extra file attributes. By default these extra attributes introduce some non-determinism, so we just get rid of them.</p>
+<p>Next up is that when a wheel is unpacked the <code>mtime</code> of the directories that are created are the current time. This metadata is preserved in the zip, but isn't interesting or useful to us. I pick an arbitrary date (in this case the mtime of the last commit) and clamp the modification timestamps:</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#bf616a;">BUILD_DATE</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#96b5b4;">shell </span><span style="color:#bf616a;">git</span><span style="color:#a3be8c;"> log</span><span style="color:#bf616a;"> --date</span><span>=</span><span style="color:#a3be8c;">local</span><span style="color:#bf616a;"> -1 --format</span><span>=&quot;</span><span style="color:#a3be8c;">@%ct</span><span>&quot;</span><span style="color:#b48ead;">)
+</span><span>
+</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">rm -rf </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">unzip -q </span><span>&quot;</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_WHEELHOUSE</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/*.whl</span><span>&quot;</span><span style="color:#bf616a;"> -d </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">find </span><span>&quot;</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">STAGING_DIRECTORY</span><span style="color:#b48ead;">)</span><span>&quot;</span><span style="color:#bf616a;"> -newermt </span><span>&quot;</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DATE</span><span style="color:#b48ead;">)</span><span>&quot;</span><span style="color:#bf616a;"> -print0 </span><span>| </span><span style="color:#bf616a;">xargs -0r</span><span> touch</span><span style="color:#bf616a;"> --no-dereference --date</span><span>=&quot;</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DATE</span><span style="color:#b48ead;">)</span><span>&quot;
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span></code></pre>
+<p>The next problem are <code>.so</code> files that are generated by the build process. Hopefully you don't have any, in which case you are done. Right now if you run a <code>setup.py</code> based compilation of an <code>.so</code> twice you will get different outputs. Some of this is the use of random <code>/tmp</code> directories. Right now the easiest way to work around this is just to pre-compile your binary dependencies as wheels and upload them to a private repository. The right fix involves using the learnings of the Reproducible Builds team to make python wheels repeatable.</p>
+<p>You should now have reproducible lambda zips.</p>
+<h1 id="bonus-targets">Bonus targets</h1>
+<p>As alluded to earlier, we can upload the zip directly to AWS by calling out to <code>awscli</code>. And why not add a <code>make invoke</code> to deploy, upload and run our function?</p>
+<pre data-lang="make" style="background-color:#2b303b;color:#c0c5ce;" class="language-make "><code class="language-make" data-lang="make"><span style="color:#bf616a;">UPLOAD_CODE_STAMP</span><span>=</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">BUILD_DIR</span><span style="color:#b48ead;">)</span><span style="color:#a3be8c;">/upload-stamp
+</span><span>
+</span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">UPLOAD_CODE_STAMP</span><span style="color:#b48ead;">)</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">OUTPUT_ZIP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">aws</span><span> lambda update-function-code</span><span style="color:#bf616a;"> --function-name</span><span> MyFunction</span><span style="color:#bf616a;"> --zip-file</span><span> lambda.zip
+</span><span>	</span><span style="color:#bf616a;">touch $@
+</span><span>
+</span><span style="color:#8fa1b3;">upload</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">UPLOAD_CODE_STAMP</span><span style="color:#b48ead;">)
+</span><span>
+</span><span style="color:#8fa1b3;">invoke</span><span>: </span><span style="color:#b48ead;">$(</span><span style="color:#bf616a;">UPLOAD_CODE_STAMP</span><span style="color:#b48ead;">)
+</span><span>	</span><span style="color:#bf616a;">aws</span><span> lambda invoke \
+</span><span style="color:#bf616a;">      --function-name</span><span> MyFunction \
+</span><span style="color:#bf616a;">      --invocation-type</span><span> RequestResponse \
+</span><span style="color:#bf616a;">      --payload</span><span> file://example-payload.json
+</span><span>
+</span><span style="color:#8fa1b3;">.PHONY</span><span>: </span><span style="color:#a3be8c;">all clean upload invoke
+</span></code></pre>
+<p>Because of the dependencies <code>invoke</code> will build a new lambda.zip if somethings changed and then deploy it, before finally running it. Perfect when developing!</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/aws/">aws</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/aws/">aws</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/lambda/">lambda</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/make/">make</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/build/">build</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/automation/">automation</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

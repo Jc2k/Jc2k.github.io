@@ -1,0 +1,78 @@
+==================================================================
+https://keybase.io/jc2k
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://unrouted.io
+  * I am jc2k (https://keybase.io/jc2k) on keybase.
+  * I have a public key with fingerprint A262 1F7E 9964 9468 FBE8  1555 EB27 AB01 4FB6 76F4
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "client": {
+            "name": "keybase.io node.js client",
+            "version": "0.4.11"
+        },
+        "key": {
+            "fingerprint": "a2621f7e99649468fbe81555eb27ab014fb676f4",
+            "host": "keybase.io",
+            "key_id": "EB27AB014FB676F4",
+            "uid": "d2830116e8a88f7934fbcb4f88cedf00",
+            "username": "jc2k"
+        },
+        "merkle_root": {
+            "ctime": 1404827520,
+            "hash": "85a4ce1279d2511a2b4b4952a63d7fb427fe056d89a868d04fcabe6befdd918316d42ca30bf49eab68c4d13713715c5253aa0771347f0b11bda8bedfa8ae0044",
+            "seqno": 26198
+        },
+        "service": {
+            "hostname": "unrouted.io",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1404827589,
+    "expire_in": 157680000,
+    "prev": "a008358e8b7e4b0b2adacc7895f962d19d91c794f6c4c40c9b5a457d1cd0a50a",
+    "seqno": 11,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG/MacGPG2 v2.0.22 (Darwin)
+
+owFdU21sFEUYvvMD5IilTcQgQUOWNFRoLzOzMzuzZyH9uLtgQIofTWyinDOzs71t
+e7vH7l5LgRpiUWMjYDSSKAEMiURB8Af/IGgg0WAhGGMJYop/iFaNGlNj0FjU2Vrj
+x2R+zOz7zDPP87yzL915ayqTXvv9TbrhjYmD6QvfiNSjp298sN0QgTNs5LYbcsBT
+fpysfF5RRs7oV8OCRyrrBcv9wFHZvmj5HKbZGFRh5AW+RoEszkJojDQn+OS06/m9
+KqyGXkJmcGQh6FJl2xa2scVcoRgkhCiBKBcAYldY1HKx5iwHUfyfa41ZzpLn6K+F
+DkTbOzS+2KHxxQRfmy04iJkAQksxzphLbVMzSoFdxqRyXAASYKTCOU99EvUnWisq
+7B9QpTAIZh3L2EvKEAPMECUIaDU8KusDjHAsFUTUdhCBkCOBBbYJ4pbpUFdgRF0F
+iOUwmzOLOQC7kgtlCeU6jg2ZCS0HI8lNIFxsKy4sJrEDTZpMIgkiJueA6i2mLhAQ
+CoczoYVzxhUAOPEZqS1+YOSQBW02kmzDQU+qRHaS2Jyxmh8GtVg5f8VWDYM4kMGA
+LpTjuJpLLMfD1QQ4pERpluJtqUrC8x3drn83FGro/+JgdrOhtla9UJW8BEGoxYAe
+yT1qMGkyAMwkTDFBFRZAIO5wKSmziWtbyIG2jkJSG7uWxBIDaQudKqEOlA7gBPB/
+TEKohfJezRl5vT6Pa6EyRl5I77gtlc6k3NtvSZ5s6a6dKT2yqSYvimoqbHGrYZsf
+xDzWBqJsUFV+tbeadT03LpeDMFIV7md9FecJ6ISdBVLEQC9tWmQQAdBZMAuFfDFv
+UtzZDvLYLqQyC+r//k8aF96R+nDP1YaprUds4+N5UyumWsjn39a37Hi891TT2fsu
+/zF+s+5nmP/u6rqLd98ztPG14b7nYUNrW/ulbQcyQ4c+e69+zaWm+Q9WVs7bbC8z
+e84/pQ4/9spPDea7Xxr5a5PLnhjPwStd11aXvppZKk4deKCY7p65cSVz9v0Lx1au
+WdXYuirXd2zT6OTSpusfrTgX70KHTwa7anKiS3SMrp+/6ODFscrL9z+UGz+5+Hhb
+Xf9Ed/di8svoDzOf9Hzx1qfntvAXVx9fu2DR7jfv/XrPkld3btj2jLX3t70bn1z3
+7K9oct/R/dcn3jnz8MLzweX9PdPkR9r6un9o/ZnTJzaPTZ8I66a7Htl9dGxJ+9PP
+/d74Jw==
+=KtOx
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/jc2k
+
+==================================================================

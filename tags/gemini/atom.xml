@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>unrouted.uk - gemini</title>
+    <link rel="self" type="application/atom+xml" href="https://unrouted.uk/tags/gemini/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://unrouted.uk"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2018-03-10T00:00:00+00:00</updated>
+    <id>https://unrouted.uk/tags/gemini/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Session management with systemd</title>
+        <published>2018-03-10T00:00:00+00:00</published>
+        <updated>2018-03-10T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://unrouted.uk/blog/session-management-with-systemd/"/>
+        <id>https://unrouted.uk/blog/session-management-with-systemd/</id>
+        
+        <summary type="html">&lt;p&gt;How can I use systemd user services to handle policies (like what to start and stop when my internet connection comes and goes) on my tiny Linux palmtop?&lt;&#x2F;p&gt;
+</summary>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Gemini: First thoughts</title>
+        <published>2018-03-02T00:00:00+00:00</published>
+        <updated>2018-03-02T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://unrouted.uk/blog/gemini-pda/"/>
+        <id>https://unrouted.uk/blog/gemini-pda/</id>
+        
+        <summary type="html">&lt;p&gt;I just got my hands on my Gemini yesterday. I have been looking forward to this campaign delivering for over a year (I was so excited I managed to be backer #5). It&#x27;s a spiritual successor to the Psion devices I grew up with and that makes it a must have for me - even if my ultraportable Mac and iPhone have seemingly eroded any real need. So here are my first thoughts on the Pocket Computers Gemini.&lt;&#x2F;p&gt;
+</summary>
+        
+    </entry>
+</feed>

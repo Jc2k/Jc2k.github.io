@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - firewall</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/firewall/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Tue, 15 Aug 2017 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Docker meet firewall - finally an answer</title>
+          <pubDate>Tue, 15 Aug 2017 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/docker-firewall/</link>
+          <guid>https://unrouted.uk/blog/docker-firewall/</guid>
+          <description xml:base="https://unrouted.uk/blog/docker-firewall/">&lt;p&gt;One of the most annoying things with Docker has been how it interacts with iptables. And ufw. And firewalld. Most firewall solutions on Linux assume they are the source of truth. But increasingly thats not a sensible assumption. This inevitably leads to collisions - restarting the firewall or Docker will end up clobbering &lt;em&gt;something&lt;&#x2F;em&gt;. What can we do?&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

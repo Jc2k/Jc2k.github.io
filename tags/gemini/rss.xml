@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - gemini</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/gemini/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Sat, 10 Mar 2018 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Session management with systemd</title>
+          <pubDate>Sat, 10 Mar 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/session-management-with-systemd/</link>
+          <guid>https://unrouted.uk/blog/session-management-with-systemd/</guid>
+          <description xml:base="https://unrouted.uk/blog/session-management-with-systemd/">&lt;p&gt;How can I use systemd user services to handle policies (like what to start and stop when my internet connection comes and goes) on my tiny Linux palmtop?&lt;&#x2F;p&gt;
+</description>
+      </item>
+      <item>
+          <title>Gemini: First thoughts</title>
+          <pubDate>Fri, 02 Mar 2018 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/gemini-pda/</link>
+          <guid>https://unrouted.uk/blog/gemini-pda/</guid>
+          <description xml:base="https://unrouted.uk/blog/gemini-pda/">&lt;p&gt;I just got my hands on my Gemini yesterday. I have been looking forward to this campaign delivering for over a year (I was so excited I managed to be backer #5). It&#x27;s a spiritual successor to the Psion devices I grew up with and that makes it a must have for me - even if my ultraportable Mac and iPhone have seemingly eroded any real need. So here are my first thoughts on the Pocket Computers Gemini.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

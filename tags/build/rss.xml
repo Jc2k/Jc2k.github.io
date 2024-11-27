@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - build</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/build/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Thu, 21 Jul 2016 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>How to build python code bundles for AWS Lambda quickly and easily</title>
+          <pubDate>Thu, 21 Jul 2016 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/use-make/</link>
+          <guid>https://unrouted.uk/blog/use-make/</guid>
+          <description xml:base="https://unrouted.uk/blog/use-make/">&lt;p&gt;AWS Lambda is conceptually really cool but as soon as your code creeps beyond a single python file that uses &lt;code&gt;botocore&lt;&#x2F;code&gt; things start to get messy and cumbersome. It&#x27;s tempting to add an entirely new tool to your workflow, but theres really no need. The approach I use is good old &lt;code&gt;make&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

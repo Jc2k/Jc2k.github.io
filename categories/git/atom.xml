@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>unrouted.uk - git</title>
+    <link rel="self" type="application/atom+xml" href="https://unrouted.uk/categories/git/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://unrouted.uk"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2016-07-26T00:00:00+00:00</updated>
+    <id>https://unrouted.uk/categories/git/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Finding when a file was added to Git and when it was last changed</title>
+        <published>2016-07-26T00:00:00+00:00</published>
+        <updated>2016-07-26T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://unrouted.uk/blog/git-and-walking-tags/"/>
+        <id>https://unrouted.uk/blog/git-and-walking-tags/</id>
+        
+        <summary type="html">&lt;p&gt;I recently built a visualisation of all Django migrations in a project and the dependencies between them. I was most interested in recent migrations, and in particular if a migration had been changed after it had been deployed. So adding the tag a migration was introduced in (and the tag it was last modified in) seemed like a good idea.&lt;&#x2F;p&gt;
+</summary>
+        
+    </entry>
+</feed>

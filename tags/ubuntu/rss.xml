@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>unrouted.uk - ubuntu</title>
+      <link>https://unrouted.uk</link>
+      <description></description>
+      <generator>Zola</generator>
+      <language>en</language>
+      <atom:link href="https://unrouted.uk/tags/ubuntu/rss.xml" rel="self" type="application/rss+xml"/>
+      <lastBuildDate>Wed, 01 Apr 2015 00:00:00 +0000</lastBuildDate>
+      <item>
+          <title>Dealing with EBS volume hotplug</title>
+          <pubDate>Wed, 01 Apr 2015 00:00:00 +0000</pubDate>
+          <author>Unknown</author>
+          <link>https://unrouted.uk/blog/aws-block-deviced-added/</link>
+          <guid>https://unrouted.uk/blog/aws-block-deviced-added/</guid>
+          <description xml:base="https://unrouted.uk/blog/aws-block-deviced-added/">&lt;p&gt;EBS volumes are attached to EC2 instances that are running. So if you have a solr instance that starts on boot and needs to use that EBS volume you have a problem. How do you make solr wait for that EBS volume to be ready? How do you format it? How do you make all this idempotent.&lt;&#x2F;p&gt;
+</description>
+      </item>
+    </channel>
+</rss>

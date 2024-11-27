@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="How to sign something after your key has expired" />
+  
+  
+
+  <title>
+    
+    Unrevoking your GPG key
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Unrevoking your GPG key</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2019-01-01
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>I recently had a bit of a whoopsie - I revoked my key before I had signed my transition statement. With all copies of my keyrings now aflicted how do I get a working version of my key back so I can retrospectively sign the transition statement?</p>
+<span id="continue-reading"></span>
+<p>Once a key has been revoked and uploaded to the key servers there is no way to unrevoke it on the key servers. It's game over. But you can hand edit the key locally so that it works again. The process I followed is from the <a href="https://lists.gnupg.org/pipermail/gnupg-users/2007-April/030726.html">GPG mailing list</a>:</p>
+<p>First pipe your public key into <code>gpgsplit</code> and split the key into the packets that it is composed of:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg --export $YOURKEYID | gpgsplit
+</span></code></pre>
+<p>Ideally do this in a temporary and empty directory. You should see a bunch of files in your cwd with names like <code>000001-006.public_key</code>.</p>
+<p>Hopefully you have a file called <code>000002-002.sig</code> - this should be the revocation. Check with:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg --list-packets 000002-002.sig
+</span></code></pre>
+<p>If the <code>sigclass</code> is set to <code>0x20</code>, its the revocation signature. Delete it. Otherwise check the other files to find a <code>sigclass</code> of <code>0x20</code>.</p>
+<p>Once you've delete the revocation signature you can delete the old version of your public key (in expert mode - gpg normally forbides deleting a public key which has a private key) and reimport the edited key:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>gpg --expert --delete-key $YOURKEYID
+</span><span>cat 0000* | gpg --import
+</span></code></pre>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                
+                    
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/gpg/">gpg</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/key/">key</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/encryption/">encryption</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/opsec/">opsec</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/revocation/">revocation</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>

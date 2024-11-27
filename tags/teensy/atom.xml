@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>unrouted.uk - teensy</title>
+    <link rel="self" type="application/atom+xml" href="https://unrouted.uk/tags/teensy/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://unrouted.uk"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2017-12-01T00:00:00+00:00</updated>
+    <id>https://unrouted.uk/tags/teensy/atom.xml</id>
+    <entry xml:lang="en">
+        <title>USB Stomp Box</title>
+        <published>2017-12-01T00:00:00+00:00</published>
+        <updated>2017-12-01T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://unrouted.uk/blog/usb-stomp-box/"/>
+        <id>https://unrouted.uk/blog/usb-stomp-box/</id>
+        
+        <summary type="html">&lt;p&gt;Christmas is right around the corner and choosing presents has been a nightmare this year. For my Dad I decided to make something. He&#x27;s been using some Amp modelling software on the PC and one awkward bit is triggering the record function and then getting ready to play. It would be handy if he had a &quot;guitar pedal&quot; that could control the software.&lt;&#x2F;p&gt;
+</summary>
+        
+    </entry>
+</feed>

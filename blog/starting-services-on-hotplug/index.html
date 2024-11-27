@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  
+  <meta name="description" content="Using systemd and udev to automatically start and stop a systemd service" />
+  
+  
+
+  <title>
+    
+    Starting services on hotplug
+    
+</title>
+
+  
+
+  
+  <link rel="stylesheet" href="https://unrouted.uk/site.css">
+  
+
+  
+  
+</head>
+
+<body class="hack dark main container">
+  
+    
+        
+  
+  <header class="nav-header">
+    <nav itemscope itemtype="http://schema.org/SiteNavigationElement" class="navbar">
+      <div class="nav-links">
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk">
+          <span itemprop="name">Home</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/about">
+          <span itemprop="name">About</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/categories">
+          <span itemprop="name">Categories</span></a>
+        
+        <a itemprop="url"
+          class=""
+          href="https://unrouted.uk/tags">
+          <span itemprop="name">Tags</span></a>
+        
+      </div>
+    </nav>
+    
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="search-icon">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+      <input type="text" id="search" placeholder="Search...">
+      <div class="search-results">
+        <div class="search-results__items"></div>
+      </div>
+    </div>
+    
+
+  </header>
+  
+  
+    
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">Starting services on hotplug</h1>
+        <span class="muted">
+    <svg class="icon i-clock" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <circle cx="16" cy="16" r="14"/>
+        <path d="M16 8 L16 16 20 20"/>
+    </svg>
+    <span>2 minute read</span>
+    <svg class="icon i-edit" viewBox="0 0 32 32"
+         width="16" height="16" fill="none" stroke="currentcolor"
+         stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
+        <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z"/>
+    </svg>
+
+    Published: 2017-05-21
+</span>
+    </header>
+    <div itemprop="articleBody">
+      <p>I want systemd to start a service when a USB device is plugged in and stop it when i remove it.</p>
+<span id="continue-reading"></span>
+<p>Use systemctl to get a list of units:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ systemctl
+</span><span>UNIT                                       LOAD   ACTIVE SUB       DESCRIPTION
+</span><span>sys-subsystem-net-devices-gamelink0.device loaded active plugged   PL25A1 Host-Host Bridge
+</span><span>&lt;snip&gt;
+</span></code></pre>
+<p>There's no configuration required here - the <code>.device</code> unit just appears in response to udev events without any configuration. I've previously set up udev rules so that my USB host-to-host cable is consistently named <code>gamelink0</code>, but even without that it would show up under its default name.</p>
+<p>The simplest way is just to take advantage of <code>WantedBy</code>. In <code>gamelink.service</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ cat /etc/systemd/systemd/gamelink.service
+</span><span>[Unit]
+</span><span>Description = Gamelink cable autoconf
+</span><span>After=sys-subsystem-net-devices-gamelink0.device
+</span><span>BindsTo=sys-subsystem-net-devices-gamelink0.device
+</span><span>
+</span><span>[Service]
+</span><span>Type=simple
+</span><span>Environment=PYTHONUNBUFFERED=1
+</span><span>ExecStart=/usr/bin/python3 /home/john/gamelink.py
+</span><span>
+</span><span>[Install]
+</span><span>WantedBy = sys-subsystem-net-devices-gamelink0.device
+</span></code></pre>
+<p>And then install it:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>$ systemctl enable gamelink
+</span><span>Created symlink from /etc/systemd/system/sys-subsystem-net-devices-gamelink0.device.wants/gamelink.service to /etc/systemd/system/gamelink.service.
+</span></code></pre>
+<p>The <a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html#WantedBy="><code>WantedBy</code> directive</a> tells <code>systemctl enable</code> to drop the symlink in a <code>.wants</code> directory for the device. Whenever a new unit becomes active systemd will look in <code>.wants</code> to see what other related services needs to be started, and that applies to <code>.device</code> units just as much as <code>.service</code> units or <code>.target</code> units. That behaviour is all we need to start our daemon on hotplug.</p>
+<p>The <a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html#BindsTo="><code>BindsTo</code> directive</a> lets us stop the service when the <code>.device</code> unit goes away (i.e. the device is unplugged). Used in conjunction with <code>After</code> we ensure that the service may never be in active state without a specific device unit also in active state.</p>
+
+    </div>
+
+    
+        <footer>
+            <hr>
+            <p>
+                
+                    Published by John Carr
+                
+                
+                    
+                    in <a href="https://unrouted.uk/categories/systemd/">systemd</a>
+                
+                
+                    and
+                    tagged
+                    
+                        <a href="https://unrouted.uk/tags/systemd/">systemd</a>
+                        
+                            
+                                
+                                    ,
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/udev/">udev</a>
+                        
+                            
+                                
+                                    and
+                                
+                            
+                        
+                    
+                        <a href="https://unrouted.uk/tags/hotplug/">hotplug</a>
+                        
+                            
+                        
+                    
+                
+            </p>
+            
+            
+        </footer>
+    
+</article>
+
+
+
+  <!-- optional scripts -->
+  
+  
+
+  
+
+  
+<script type="text/javascript" src="https://unrouted.uk/elasticlunr.min.js"></script>
+<script type="text/javascript" src="https://unrouted.uk/js/search.js"></script>
+
+
+  
+</body>
+
+</html>
